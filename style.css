@@ -1,0 +1,394 @@
+/*
+ Theme Name:   GeneratePress Child — PRINEX
+ Theme URI:    https://prinex.com.pl
+ Description:  Child theme GeneratePress dla sklepu PRINEX.
+ Author:       PRINEX
+ Template:     generatepress
+ Version:      1.0.0
+ Text Domain:  generatepress-child
+*/
+
+/* ============================================================
+   PRINEX — CSS Variables (brand tokens)
+   ============================================================ */
+:root {
+	--prinex-navy:       #0B457D;
+	--prinex-green:      #78B833;
+	--prinex-green-dark: #62992a;
+	--prinex-bg:         #E8ECEF;
+
+	/* Aliasy o krotszych nazwach — uzywane w CSS przenoszonym 1:1
+	   z makiet Claude Design (strona glowna, kategoria, kolejne podstrony).
+	   Jedno miejsce prawdy, zeby kolory nie rozjezdzaly sie miedzy stronami. */
+	--navy:       #0B457D;
+	--green:      #78B833;
+	--green-dark: #62992a;
+	--bg-light:   #E8ECEF;
+	--body:       #333333;
+	--white:      #FFFFFF;
+	--line:       #dfe4e8;
+}
+
+/* ============================================================
+   PRINEX — Fundament wspolny dla calej witryny (czcionka, naglowki,
+   kreska sygnaturowa). Wczesniej te reguly byly podpiete lokalnie
+   tylko do strony glownej (is_front_page) — przez co inne strony
+   (np. kategoria) dziedziczyly domyslny font motywu, nie Figtree.
+   ============================================================ */
+/* !important: WP global-styles-inline-css ustawia body{font-family:var(--wp--preset--font-family--figtree)}
+   z ta sama specyficznoscia (0,0,1) — w testach ta zmienna sporadycznie nie
+   rozwiazywala sie poprawnie (cache global styles), dajac losowo fallback
+   systemowy zamiast Figtree. Literalny stack + !important usuwa te niestabilnosc. */
+body{ font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif !important; }
+
+.sig{ width:52px; height:2px; background:var(--green); margin-bottom:22px; }
+.sig.center{ margin-left:auto; margin-right:auto; }
+
+h1, h2, h3{ color:var(--navy); font-weight:700; line-height:1.1; }
+
+/* Defense-in-depth: elementy brandowe naglowka nie powinny zalezec od
+   dziedziczenia font-family z body, gdyby coś jeszcze nadpisalo body. */
+.prinex-topbar, .prinex-header, .prinex-nav a, .prinex-action{ font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif; }
+
+/* ============================================================
+   PRINEX — Kreska sygnaturowa nad nagłówkami sekcji
+   Użycie: dodaj klasę .prinex-section-heading do dowolnego
+   nagłówka (h2, h3) lub wrapperа sekcji w GenerateBlocks.
+   Kreska pojawi się nad tekstem nagłówka.
+   ============================================================ */
+.prinex-section-heading {
+	position: relative;
+	padding-top: 18px;
+}
+.prinex-section-heading::before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 50px;
+	height: 2px;
+	background-color: var(--prinex-green);
+}
+
+/* Wariant wycentrowany (dodaj obie klasy) */
+.prinex-section-heading.is-centered::before {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+/* ============================================================
+   PRINEX — Layout bands (z makiety Claude Design)
+   ============================================================ */
+.prinex-band      { width: 1440px; max-width: 100%; margin: 0 auto; }
+.prinex-container { width: 1400px; max-width: 100%; margin: 0 auto; padding: 0 20px; }
+
+/* ============================================================
+   PRINEX — Reset domyślnego nagłówka GeneratePress
+   ============================================================ */
+.site-header,
+#masthead { display: none !important; }
+
+/* ============================================================
+   PRINEX — Top Bar
+   ============================================================ */
+.prinex-topbar {
+  background: var(--prinex-bg);
+  color: var(--prinex-navy);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  width: 100%;
+}
+.prinex-topbar .prinex-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prinex-tb-left { font-weight: 700; font-size: 12px; opacity: 1; }
+.prinex-tb-mid  { display: flex; align-items: center; gap: 24px; }
+.prinex-tb-item { display: flex; align-items: center; gap: 8px; }
+.prinex-tb-item svg { width: 17px; height: 17px; color: var(--prinex-green); flex-shrink: 0; }
+.prinex-tb-sep  { color: var(--prinex-navy); opacity: .28; }
+.prinex-tb-right { display: flex; align-items: center; gap: 20px; }
+.prinex-tb-right a {
+  display: flex; align-items: center; gap: 7px;
+  color: var(--prinex-navy); text-decoration: none; opacity: 1;
+  transition: color .15s;
+}
+.prinex-tb-right a svg { width: 15px; height: 15px; color: var(--prinex-green); }
+.prinex-tb-right a:hover { color: var(--prinex-green-dark); }
+
+/* ============================================================
+   PRINEX — Główny nagłówek (sticky, biały)
+   ============================================================ */
+.prinex-header {
+  background: #fff;
+  border-bottom: 1px solid #e4e8eb;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  transition: box-shadow .2s ease;
+}
+.prinex-header.is-stuck { box-shadow: 0 6px 22px rgba(11,69,125,.10); }
+/* Belka WP admina jest fixed na samej górze (32px / 46px na wąskim ekranie)
+   i ma wyzszy z-index niz nasz header — bez tego przesuniecia zakrywa logo
+   gdy menu przyklei sie do top:0. Dotyczy tylko zalogowanych (np. tryb
+   Coming Soon) — realni odwiedzajacy bez admin bara dostają top:0. */
+body.admin-bar .prinex-header { top: 32px; }
+@media (max-width: 782px) {
+  body.admin-bar .prinex-header { top: 46px; }
+}
+.prinex-header .prinex-container {
+  height: 88px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Nawigacja — lewa kolumna */
+.prinex-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -12px;
+}
+.prinex-nav a {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--prinex-navy);
+  letter-spacing: .005em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 9px 12px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.prinex-nav a::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  width: 0;
+  bottom: 4px;
+  height: 2px;
+  background: var(--prinex-green);
+  transition: width .2s ease;
+}
+.prinex-nav a.current-menu-item,
+.prinex-nav a.current-menu-ancestor { font-weight: 700; }
+.prinex-nav a.current-menu-item::after,
+.prinex-nav a.current-menu-ancestor::after { width: calc(100% - 24px); }
+.prinex-nav a:hover { color: var(--prinex-green); }
+.prinex-nav a:hover::after { width: calc(100% - 24px); }
+
+/* Logo — środkowa kolumna */
+.prinex-brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.prinex-brand a { display: flex; align-items: center; }
+.prinex-brand svg {
+  width: 130px;
+  height: auto;
+  display: block;
+}
+
+/* Akcje — prawa kolumna */
+.prinex-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+}
+.prinex-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--prinex-navy);
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s;
+  position: relative;
+}
+.prinex-action svg { width: 22px; height: 22px; flex-shrink: 0; }
+.prinex-action:hover { color: var(--prinex-green); }
+
+/* Koszyk — licznik */
+.prinex-cart-count {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  background: var(--prinex-green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* ============================================================
+   === GLOBALNE MENU/NAGŁÓWEK — NIE NADPISYWAĆ ===
+
+   Element 161 (Theme Builder, hook generate_header) renderuje się
+   identycznie na KAŻDEJ stronie — to jest jedyny, globalny nagłówek
+   serwisu. Sekcje wyżej ("PRINEX — Top Bar", "PRINEX — Główny nagłówek")
+   ustalają pełny wygląd. Poniższe reguły są celowym "zamkiem" (lock) na
+   4 właściwości, które już dwukrotnie zostały przypadkiem ubite przez
+   style pojedynczych stron (np. ".prinex-cat-naklejki a{color:inherit}"
+   miało wyższą specyficzność niż ".prinex-nav a" i gasiło navy/700 na
+   kategorii — patrz historia naprawy). Dlatego: kotwiczone na #prinex-header
+   (ID) + .prinex-nav, literalne wartości hex (NIE zmienne --prinex-*, żeby
+   przyszły snippet nie mógł zgasić efektu przez przedefiniowanie zmiennej),
+   i !important — WYŁĄCZNIE na te 4 właściwości, nic więcej. Każdy nowy
+   snippet per-strona MUSI zawężać swoje selektory do .inside-article /
+   własnych wrapperów, NIE do <body> czy gołych tagów — patrz audyt w
+   snippetach 11/12 (komentarze "WAZNE: scope na...").
+   ============================================================ */
+#prinex-header .prinex-nav a {
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 700 !important;
+  color: #0B457D !important;
+}
+#prinex-header .prinex-nav a:hover {
+  color: #78B833 !important;
+}
+#prinex-header {
+  position: sticky !important;
+}
+body:not(.admin-bar) #prinex-header {
+  top: 0 !important;
+}
+body.admin-bar #prinex-header {
+  top: 32px !important;
+}
+@media (max-width: 782px) {
+  body.admin-bar #prinex-header {
+    top: 46px !important;
+  }
+}
+
+/* ============================================================
+   PRINEX — Stopka (tło jasne, wg mockupu strona-glowna-unpacked.html)
+   ============================================================ */
+.prinex-footer {
+  background: var(--prinex-bg);
+  color: var(--prinex-navy);
+  width: 100%;
+  border-top: 1px solid #d6dce0;
+}
+.prinex-footer .prinex-container { padding-top: 64px; }
+
+.prinex-footer-top {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 54px;
+}
+
+/* Kolumna lewa — brand */
+.prinex-footer-brand svg {
+  width: 200px;
+  height: auto;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.prinex-footer-sig {
+  width: 52px;
+  height: 2px;
+  background: var(--prinex-green);
+  margin-bottom: 18px;
+}
+.prinex-footer-brand p {
+  font-size: 15px;
+  color: #5a6570;
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+/* Kolumny linków */
+.prinex-footer-col h5 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  color: var(--prinex-navy);
+}
+.prinex-footer-col a {
+  display: block;
+  font-size: 15px;
+  color: #5a6570;
+  margin-bottom: 12px;
+  text-decoration: none;
+  transition: color .15s;
+}
+.prinex-footer-col a:hover { color: var(--prinex-green-dark); }
+
+/* Dolny pasek stopki */
+.prinex-footer-bottom {
+  padding: 22px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(11,69,125,.16);
+}
+.prinex-footer-bottom p {
+  font-size: 14px;
+  color: #5a6570;
+}
+.prinex-footer-bottom-right {
+  display: flex;
+  gap: 22px;
+}
+.prinex-footer-bottom-right a {
+  font-size: 14px;
+  color: #5a6570;
+  text-decoration: none;
+  transition: color .15s;
+}
+.prinex-footer-bottom-right a:hover { color: var(--prinex-green-dark); }
+
+/* ============================================================
+   PRINEX — Stopka, responsywność (witryna globalna, nie tylko strona główna)
+   ============================================================ */
+@media (max-width: 768px) {
+  .prinex-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .prinex-footer-bottom { flex-direction: column; align-items: flex-start; gap: 14px; }
+}
+@media (max-width: 480px) {
+  .prinex-footer-top { grid-template-columns: 1fr; gap: 28px; }
+  .prinex-footer-bottom-right { flex-wrap: wrap; gap: 14px; }
+}
+
+/* ============================================================
+   PRINEX — Sticky header JS-class
+   ============================================================ */
+@media (max-width: 1023px) {
+  .prinex-topbar { display: none; }
+  .prinex-header .prinex-container {
+    height: 68px;
+    grid-template-columns: 1fr auto;
+  }
+  .prinex-nav { display: none; }
+  .prinex-header-actions .prinex-action span { display: none; }
+}
