@@ -1,0 +1,98 @@
+[
+    {
+        "id": "1",
+        "name": "Make upload filenames lowercase",
+        "filename": "make-upload-filenames-lowercase.php",
+        "scope": "global",
+        "active": false,
+        "description": "Makes sure that image and file uploads have lowercase filenames.\n\nThis is a sample snippet. Feel free to use it, edit it, or remove it."
+    },
+    {
+        "id": "2",
+        "name": "Disable admin bar",
+        "filename": "disable-admin-bar.php",
+        "scope": "front-end",
+        "active": false,
+        "description": "Turns off the WordPress admin bar for everyone except administrators.\n\nThis is a sample snippet. Feel free to use it, edit it, or remove it."
+    },
+    {
+        "id": "3",
+        "name": "Allow smilies",
+        "filename": "allow-smilies.php",
+        "scope": "global",
+        "active": false,
+        "description": "Allows smiley conversion in obscure places.\n\nThis is a sample snippet. Feel free to use it, edit it, or remove it."
+    },
+    {
+        "id": "4",
+        "name": "Current year",
+        "filename": "current-year.php",
+        "scope": "content",
+        "active": false,
+        "description": "Shortcode for inserting the current year into a post or page..\n\nThis is a sample snippet. Feel free to use it, edit it, or remove it."
+    },
+    {
+        "id": "5",
+        "name": "PRINEX - Ukryj \"Wybierz opcję\" w dropdownach",
+        "filename": "prinex-ukryj-wybierz-opcje-w-dropdownach.php",
+        "scope": "front-end",
+        "active": true,
+        "description": ""
+    },
+    {
+        "id": "6",
+        "name": "PRINEX - Radio buttons zamiast dropdownów dla wariantów",
+        "filename": "prinex-radio-buttons-zamiast-dropdownow-dla-wariantow.php",
+        "scope": "front-end",
+        "active": false,
+        "description": ""
+    },
+    {
+        "id": "7",
+        "name": "PRINEX - Dodaj cenę i rabat do swatchów Nakładu",
+        "filename": "prinex-dodaj-cene-i-rabat-do-swatchow-nakladu.php",
+        "scope": "front-end",
+        "active": true,
+        "description": ""
+    },
+    {
+        "id": "8",
+        "name": "PRINEX - Dodaj radio i POPULARNY do swatchów Rozmiaru",
+        "filename": "prinex-dodaj-radio-i-popularny-do-swatchow-rozmiaru.php",
+        "scope": "front-end",
+        "active": false,
+        "description": ""
+    },
+    {
+        "id": "9",
+        "name": "PRINEX — Figtree Google Font",
+        "filename": "prinex-figtree-google-font.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Ładuje Figtree 400\/600\/700 z Google Fonts dla całego serwisu."
+    },
+    {
+        "id": "10",
+        "name": "PRINEX — SVG upload support",
+        "filename": "prinex-svg-upload-support.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Zezwala na wgrywanie plików SVG\/SVGZ do biblioteki mediów. Wymagane dla logo i ikon brandowych."
+    },
+    {
+        "id": "11",
+        "name": "PRINEX — Strona główna (CSS\/JS z eksportu Claude Design)",
+        "filename": "prinex-strona-glowna-css-js-z-eksportu-claude-design.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "CSS i JS strony głównej przeniesione 1:1 z 04-mockupy\/01-strona-glowna\/strona-glowna-unpacked.html. Ładuje się tylko na is_front_page()."
+    },
+    {
+        "id": "12",
+        "name": "PRINEX — Kategoria Naklejki 3D Premium (layout + CSS\/JS)",
+        "filename": "prinex-kategoria-naklejki-3d-premium-layout-css-js.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Pelna szerokosc, breadcrumb\/head\/filtry, tile-grid styling, sekcja SEO CSS\/JS — wylacznie dla product_cat naklejki-3d-premium"
+    }
+]
