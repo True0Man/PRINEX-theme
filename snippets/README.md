@@ -23,29 +23,25 @@ Każdy plik ma na górze nagłówek z ID snippetu, scope i statusem
 | 7 | `prinex-dodaj-cene-i-rabat-do-swatchow-nakladu.php` | front-end | **aktywny** | JS na stronie produktu: dokleja cenę i marker "Taniej o X%" do swatchów atrybutu Nakład. |
 | 8 | `prinex-dodaj-radio-i-popularny-do-swatchow-rozmiaru.php` | front-end | nieaktywny | JS na stronie produktu: marker "POPULARNY" na swatchu Rozmiaru 50×80. Wyłączony — sprawdzić czy wzorzec produktu (Srebrna Szlifowana) tego jeszcze potrzebuje. |
 | 9 | `prinex-figtree-google-font.php` | front-end | **aktywny** | Ładuje font Figtree (400/600/700) z Google Fonts dla całego serwisu. |
-| 10 | `prinex-svg-upload-support.php` | front-end | **aktywny** | Ma zezwalać na wgrywanie SVG/SVGZ do biblioteki mediów. **⚠️ ZNANY BUG — patrz niżej.** |
+| 10 | `prinex-svg-upload-support.php` | **global** | **aktywny** | Zezwala na wgrywanie SVG/SVGZ do biblioteki mediów. Naprawiony 2026-06-19 — patrz niżej. |
 | 11 | `prinex-strona-glowna-css-js-z-eksportu-claude-design.php` | front-end | **aktywny** | Pełny CSS/JS strony głównej (hero, kafle, FAQ, opinie, responsywność) — przeniesiony 1:1 z makiety `04-mockupy/01-strona-glowna/strona-glowna-unpacked.html`. Ładuje się tylko na `is_front_page()`. |
 | 12 | `prinex-kategoria-naklejki-3d-premium-layout-css-js.php` | front-end | **aktywny** | CSS/JS strony kategorii "Naklejki 3D Premium" (breadcrumb, filtry, siatka kafli, sekcja SEO) — wyłącznie dla `product_cat = naklejki-3d-premium`. |
 
-## ⚠️ Znany bug — snippet #10 (SVG upload support)
+## ✅ Naprawiony bug — snippet #10 (SVG upload support), 2026-06-19
 
-Eksport (i `php -l`) wykrył, że **kod w bazie jest uszkodzony**: każda
-zmienna (`$mimes`, `$file`, `$filename`, `$type`) jest zapisana jako goły
-backslash `\` bez nazwy zmiennej — np. `function( \ ) { \["svg"] = ... }`
-zamiast `function( $mimes ) { $mimes["svg"] = ... }`. To nie jest artefakt
-eksportu — sprawdzone bezpośrednio w bazie (`wp eval` na żywo daje ten sam,
-uszkodzony tekst).
+Kod w bazie był uszkodzony: każda zmienna (`$mimes`, `$file`, `$filename`,
+`$type`) była zapisana jako goły backslash `\` bez nazwy — np.
+`function( \ ) { \["svg"] = ... }` zamiast `function( $mimes ) { $mimes["svg"] = ... }`.
+Scope był `front-end`, a filtry `upload_mimes`/`wp_check_filetype_and_ext`
+wywołują się w kontekście wp-admin (biblioteka mediów) — więc uszkodzony kod
+nigdy się nie wykonywał i wgrywanie SVG faktycznie nie działało, mimo że
+snippet był oznaczony jako "aktywny".
 
-Snippet jest oznaczony jako **aktywny**, ale ponieważ jego scope to
-`front-end`, a filtry `upload_mimes`/`wp_check_filetype_and_ext` są wywoływane
-w kontekście wp-admin (biblioteka mediów), kod **prawdopodobnie nigdy się nie
-wykonuje** — co tłumaczy, dlaczego uszkodzona składnia nie wywołała
-widocznego błędu na stronie. To prawdopodobnie oznacza, że **wgrywanie SVG do
-biblioteki mediów dziś nie działa** (mimo że snippet istnieje i jest
-"aktywny"). Wymaga osobnej naprawy: poprawić nazwy zmiennych i rozważyć zmianę
-scope na `global` lub `admin`, żeby filtr faktycznie zadziałał przy uploadzie
-w dashboardzie.
-
-Eksport zachowuje ten kod **wiernie, z błędem włącznie** — celem mirrora jest
-dokładne odzwierciedlenie tego, co jest w bazie, żeby takie problemy było
-łatwo wychwycić w review.
+**Naprawione:**
+- kod zaktualizowany w `wp_snippets.code` (poprawne nazwy zmiennych)
+- scope zmieniony z `front-end` na **`global`** — filtr teraz faktycznie
+  działa też w wp-admin, gdzie się wykonuje upload
+- `php -l` na realnej treści z bazy: bez błędów
+- przetestowany prawdziwy upload (`wp media import` testowego SVG) —
+  zaimportowany jako `image/svg+xml`, publicznie dostępny pod realnym URL,
+  testowy załącznik usunięty po weryfikacji

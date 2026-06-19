@@ -75,7 +75,7 @@
         "id": "10",
         "name": "PRINEX — SVG upload support",
         "filename": "prinex-svg-upload-support.php",
-        "scope": "front-end",
+        "scope": "global",
         "active": true,
         "description": "Zezwala na wgrywanie plików SVG\/SVGZ do biblioteki mediów. Wymagane dla logo i ikon brandowych."
     },
