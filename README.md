@@ -98,7 +98,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 8 | „POPULARNY" na swatchu Rozmiaru | front-end | 💤 | Wyłączony — do weryfikacji |
 | 9 | Figtree Google Font | front-end | ✅ | Ładuje font dla całego serwisu |
 | 10 | SVG upload support | global | ✅ | Zezwala na upload SVG/SVGZ do mediów. *Naprawiony — patrz §6* |
-| 11 | Strona główna — CSS/JS | front-end | ✅ | Hero, kafle, FAQ, opinie; tylko `is_front_page()` |
+| 11 | Strona główna — CSS/JS | front-end | ✅ | Hero, kafle, FAQ, opinie; tylko `is_front_page()`. *Oczyszczony z martwego nagłówka makiety — patrz §6* |
 | 12 | Kategoria 3D Premium — CSS/JS | front-end | ✅ | Breadcrumb, filtry, siatka, SEO; tylko ta kategoria |
 
 ---
@@ -109,6 +109,11 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 - **Był:** kod w bazie uszkodzony (każda zmienna jako goły `\`) + scope `front-end`, podczas gdy `upload_mimes` działa w wp-admin → upload SVG nie działał.
 - **Naprawione:** odtworzono nazwy zmiennych, scope `front-end` → `global`. Zweryfikowane: `php -l` czysty, realny `wp media import` SVG → HTTP 200, `content-type: image/svg+xml`. Mirror re-eksportowany.
 - ℹ️ *Uwaga bezpieczeństwa na przyszłość:* surowy SVG to wektor XSS. Upload tylko dla admina = niskie ryzyko, ale wtyczka Safe SVG (sanityzacja) byłaby bezpieczniejsza.
+
+### ✅ Nagłówek strony głównej — duplikat makiety (USUNIĘTY)
+- **Był:** snippet #11 niósł martwy CSS/JS nagłówka z makiety (generyczne `.topbar`/`.header`/`.nav` + sticky na `.header.stuck`) — pozostałość po przeniesieniu makiety „1:1".
+- **Naprawione:** usunięto martwy CSS i JS ze snippetu #11 (po backupie). Zweryfikowano na żywo (jako admin): strona główna renderuje wyłącznie globalny `<header id="prinex-header">` (Element 161), identycznie jak kategoria; sticky `.is-stuck` działa sitewide (JS zaszyty w Elemencie 161). Zero pozostałości po makiecie.
+- **Wniosek:** globalny nagłówek (Element 161 + `style.css`) to jedyne źródło prawdy dla menu — spójny na każdej stronie.
 
 ### ✅ Ładowanie `style.css` (CSS globalnej ramy) — WYJAŚNIONE
 - Child `style.css` jest enqueue'owany **bezwarunkowo przez core GeneratePress** (`generate_load_child_theme_stylesheet`, handle `generate-child-css`) — na każdym żądaniu, niezależnie od snippetów.
@@ -142,6 +147,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 - [x] Diagnostyka: jak `style.css` dociera na stronę → core GeneratePress, potwierdzone
 - [x] Fix snippetu #10 (SVG upload) + re-eksport
 - [x] Decyzja: jedno źródło prawdy dla CSS ramy → `style.css` (bez konsolidacji)
+- [x] Nagłówek/menu spójne wszędzie → usunięto duplikat makiety ze snippetu #11, globalny `.prinex-header` na każdej stronie
 - [ ] Cleanup `functions.php` (usunięcie redundantnego enqueue)
 - [ ] Weryfikacja nawigacji mobilnej
 - [ ] Sprzątanie martwych snippetów (1–4, 6, 8)
