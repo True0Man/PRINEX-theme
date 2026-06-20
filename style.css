@@ -81,7 +81,7 @@ h1, h2, h3{ color:var(--navy); font-weight:700; line-height:1.1; }
    PRINEX — Layout bands (z makiety Claude Design)
    ============================================================ */
 .prinex-band      { width: 1440px; max-width: 100%; margin: 0 auto; }
-.prinex-container { width: 1400px; max-width: 100%; margin: 0 auto; padding: 0 20px; }
+.prinex-container { width: 1400px; max-width: 100%; margin: 0 auto; padding: 0; }
 
 /* ============================================================
    PRINEX — Reset domyślnego nagłówka GeneratePress
@@ -186,8 +186,6 @@ body.admin-bar .prinex-header { top: 32px; }
 }
 .prinex-nav a.current-menu-item,
 .prinex-nav a.current-menu-ancestor { font-weight: 700; }
-.prinex-nav a.current-menu-item::after,
-.prinex-nav a.current-menu-ancestor::after { width: calc(100% - 24px); }
 .prinex-nav a:hover { color: var(--prinex-green); }
 .prinex-nav a:hover::after { width: calc(100% - 24px); }
 
