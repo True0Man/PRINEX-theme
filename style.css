@@ -98,8 +98,8 @@ h1, h2, h3{ color:var(--navy); font-weight:700; line-height:1.1; }
   height: 44px;
   display: flex;
   align-items: center;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .02em;
   white-space: nowrap;
@@ -110,7 +110,7 @@ h1, h2, h3{ color:var(--navy); font-weight:700; line-height:1.1; }
   align-items: center;
   justify-content: space-between;
 }
-.prinex-tb-left { font-weight: 700; font-size: 12px; opacity: 1; }
+.prinex-tb-left { opacity: 1; }
 .prinex-tb-mid  { display: flex; align-items: center; gap: 24px; }
 .prinex-tb-item { display: flex; align-items: center; gap: 8px; }
 .prinex-tb-item svg { width: 17px; height: 17px; color: var(--prinex-green); flex-shrink: 0; }
