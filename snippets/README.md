@@ -20,34 +20,58 @@ Każdy plik ma na górze nagłówek z ID snippetu, scope i statusem
 | 4 | `current-year.php` | content (shortcode) | nieaktywny | Przykładowy shortcode wstawiający aktualny rok. Nieużywany w PRINEX. |
 | 5 | `prinex-ukryj-wybierz-opcje-w-dropdownach.php` | front-end | **aktywny** | Usuwa opcję "Wybierz opcję" (`show_option_none`) z domyślnych dropdownów wariantów WooCommerce. |
 | 6 | `prinex-radio-buttons-zamiast-dropdownow-dla-wariantow.php` | front-end | nieaktywny | Zamienia dropdowny wariantów na radio buttony — zastąpione wtyczką Variation Swatches, zostawione jako odłożony kod. |
-| 7 | `prinex-dodaj-cene-i-rabat-do-swatchow-nakladu.php` | front-end | **aktywny** | JS na stronie produktu: dokleja cenę i marker "Taniej o X%" do swatchów atrybutu Nakład. |
-| 8 | `prinex-dodaj-radio-i-popularny-do-swatchow-rozmiaru.php` | front-end | nieaktywny | JS na stronie produktu: marker "POPULARNY" na swatchu Rozmiaru 50×80. Wyłączony — sprawdzić czy wzorzec produktu (Srebrna Szlifowana) tego jeszcze potrzebuje. |
+| 7 | `prinex-dodaj-cene-i-rabat-do-swatchow-nakladu.php` | front-end | **aktywny** | PRZEPISANY 2026-06-21 z JS na filtr PHP `woocommerce_dropdown_variation_attribute_options_html` — wstrzykuje realne ceny netto/brutto + "Taniej o X%" do wierszy Nakładu. Zero JS. |
+| 8 | `prinex-dodaj-radio-i-popularny-do-swatchow-rozmiaru.php` | front-end | nieaktywny | NIEUŻYWANY od 2026-06-21 — plakietka "Popularny" zrobiona czystym CSS w snippecie #13 (`::after` na klasie generowanej przez wtyczkę swatchy). Zostawiony jako odłożony kod. |
 | 9 | `prinex-figtree-google-font.php` | front-end | **aktywny** | Ładuje font Figtree (400/600/700) z Google Fonts dla całego serwisu. |
 | 10 | `prinex-svg-upload-support.php` | **global** | **aktywny** | Zezwala na wgrywanie SVG/SVGZ do biblioteki mediów. Naprawiony 2026-06-19 — patrz niżej. |
 | 11 | `prinex-strona-glowna-css-js-z-eksportu-claude-design.php` | front-end | **aktywny** | Pełny CSS/JS strony głównej (hero, kafle, FAQ, opinie, responsywność) — przeniesiony 1:1 z makiety `04-mockupy/01-strona-glowna/strona-glowna-unpacked.html`. Ładuje się tylko na `is_front_page()`. |
 | 12 | `prinex-kategoria-naklejki-3d-premium-layout-css-js.php` | front-end | **aktywny** | CSS/JS strony kategorii "Naklejki 3D Premium" (breadcrumb, filtry, siatka kafli, sekcja SEO) — wyłącznie dla `product_cat = naklejki-3d-premium`. |
-| 13 | `prinex-strona-produktu-layout-i-hooki-etap1.php` | front-end | **aktywny** | Strona produktu, Etap 1 (warstwa wizualna): layout 58/42 na `.images`/`.summary`, breadcrumb przeniesiony do prawej kolumny, usunięcie domyślnego price/meta/sharing/tabs, filtr przycisku na "Zamawiam" — wyłącznie dla `is_product()`. Współpracuje z override `woocommerce/single-product/add-to-cart/variable.php` (patrz niżej — to plik motywu, nie snippet). |
+| 13 | `prinex-strona-produktu-layout-i-hooki-etap1.php` | front-end | **aktywny** | Strona produktu, Etap 1: layout 58/42, hooki WooCommerce, CSS 1:1 ze wzoru (qty-list/opt-row/sum-card/dlv/btn-cta), reskin żywych swatchy, plakietka Popularny — wyłącznie dla `is_product()`. Patrz niżej. |
 
-## 🧩 Strona produktu — Etap 1 (warstwa wizualna), 2026-06-21
+## 🧩 Strona produktu — Etap 1 (warstwa wizualna 1:1 ze wzoru), 2026-06-21
 
-Konfigurator FORMAT/NAKŁAD + Podsumowanie + ZAMAWIAM zbudowany na **dwóch
-mechanizmach naraz**, oba potrzebne razem:
+Konfigurator Format/Nakład + Podsumowanie + ZAMAWIAM zbudowany na **czterech
+mechanizmach naraz**, wszystkie potrzebne razem:
 
-- **Snippet #13** (ten katalog) — layout 58/42, hooki WooCommerce, CSS.
+- **Snippet #13** (ten katalog) — layout 58/42, hooki WooCommerce, CSS (klasy
+  1:1 ze wzoru: `cfg-block`, `cfg-label`, `cfg-num`, `qty-list`, `cfg-label-nak`,
+  `sum-card`, `dlv`, `btn-cta`...).
+- **Snippet #7** — filtr PHP `woocommerce_dropdown_variation_attribute_options_html`
+  (priorytet 21, po wtyczce woo-variation-swatches na priorytecie 20) —
+  wstrzykuje ceny netto/brutto + "Taniej o X%" do wierszy Nakładu, liczone z
+  realnych wariantów domyślnego Formatu. Zero JS.
 - **`../woocommerce/single-product/add-to-cart/variable.php`** — override
-  szablonu WooCommerce (plik motywu, **nie** Code Snippet) — numerowane bloki
-  "1 FORMAT" / "2 NAKŁAD" / "3 Podsumowanie", pasek dostawy, przycisk, podpis
-  "Następny krok: wgraj pliki". Zachowuje `wc_dropdown_variation_attribute_options()`
-  per atrybut (wymagane przez wtyczkę woo-variation-swatches) oraz `.variations`/
+  szablonu WooCommerce (plik motywu, **nie** Code Snippet) — bloki "1 Format" /
+  "2 Nakład" / "3 Podsumowanie", pasek dostawy, `cfg-order` z przyciskiem +
+  podpisem. Zachowuje `wc_dropdown_variation_attribute_options()` per atrybut
+  (wymagane przez wtyczkę woo-variation-swatches) oraz `.variations`/
   `.single_variation`/`.single_variation_wrap` (wymagane przez
   `assets/js/frontend/add-to-cart-variation.js` — bez tego dopasowywanie
   wariantu i dodanie do koszyka przestaje działać).
+- **`../woocommerce/single-product/add-to-cart/variation-add-to-cart-button.php`**
+  — override (plik motywu) — dodaje `span.btn-cta-ic`/`btn-cta-label`/`btn-cta-cube`
+  do przycisku (ikona + strzałka + hover wg wzoru). Potrzebny, bo
+  `$product->single_add_to_cart_text()` jest escapowany w oryginale — sam filtr
+  tekstu nie może wstrzyknąć HTML.
+
+**Architektura "Popularny" / "HIT" — czysty CSS, bez JS:**
+Wtyczka woo-variation-swatches generuje per-wartość klasę
+`button-variable-item-{slug}` na każdym `<li>`. Plakietka "Popularny" (Format
+50×80) to `#sizeList .variable-item.button-variable-item-50-x-80
+.variable-item-contents::after{content:"Popularny";...}` — zero JS, zero
+ryzyka błędnego sluga (jak w starym snippecie #8, teraz nieużywanym). "HIT"
+(Nakład 250 szt.) jest wstrzykiwane przez snippet #7 jako prawdziwy
+`<span class="pill pill-opt">`, bo leci razem z realną ceną tego wiersza.
+
+**Checkmark swatchy Formatu — czysty CSS:** `::before` na
+`.variable-item-contents` z tłem `background-image: url("data:image/svg+xml,...")`
+(SVG inline w data-URI) — bez wstrzykiwania markupu, bez JS.
 
 **Decyzje podjęte przy wdrożeniu (do potwierdzenia):**
 - Etykieta atrybutu `pa_rozmiar` wyświetlana jako "Format" (UI), nie "Rozmiar"
   (nazwa taksonomii bez zmian) — zgodnie z briefem wdrożenia.
 - Domyślne zakładki WC "Informacje dodatkowe / Opinie" wyłączone (redundantne
-  z konfiguratorem; "Opinie" dostaną własną sekcję w Bloku E).
+  z konfiguratorem; "Opinie" mają własną sekcję niżej na stronie).
 - "Podobne produkty" (related products) — pozostawione, tylko rozciągnięte na
   pełną szerokość gridu (poza zakresem makiety, ale działająca funkcja, nie
   usuwana bez powodu).
@@ -56,6 +80,14 @@ mechanizmach naraz**, oba potrzebne razem:
   TODO w kodzie przy Etapie 2 (kalkulator na zmianę wyboru).
 - Próg darmowej dostawy na pasku: 200 zł (zgodnie z topbar, nie 250 zł jak w
   oryginalnej makiecie Claude Design).
+- "Własny format" / "Własny nakład" (wiersz z chevronem + panel pól) —
+  POMINIĘTE w Etapie 1. To nie są realne wartości atrybutów WooCommerce, tylko
+  funkcja indywidualnego zamówienia (Etap 2/etap dalszy). TODO w kodzie
+  `variable.php`.
+- Rabaty "Taniej o X%" przy Nakładzie liczone wg tego samego wzoru co
+  poprzednio (spadek ceny za sztukę względem najmniejszego nakładu) — dla
+  Formatu 30×60 wychodzi 57/78/89%, NIE 15/26/40% z oryginalnej makiety Claude
+  Design (te liczby były przykładowe, nie z bazy).
 
 ## 🐛 Naprawione bugi layoutu po wizualnym przeglądzie, 2026-06-21
 

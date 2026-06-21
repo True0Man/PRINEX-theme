@@ -49,11 +49,11 @@
     },
     {
         "id": "7",
-        "name": "PRINEX - Dodaj cenę i rabat do swatchów Nakładu",
+        "name": "PRINEX — Naklad: ceny/rabaty per wiersz w PHP (Etap 1, bez JS)",
         "filename": "prinex-dodaj-cene-i-rabat-do-swatchow-nakladu.php",
         "scope": "front-end",
         "active": true,
-        "description": ""
+        "description": "PRZEPISANY 2026-06-21 z JS (wp_footer DOM-injection, ceny zahardkodowane) na filtr PHP woocommerce_dropdown_variation_attribute_options_html (priorytet 21) — wstrzykuje realne ceny netto/brutto + \"Taniej o X%\" liczone z wariantow domyslnego Formatu. Zero JS."
     },
     {
         "id": "8",
@@ -61,7 +61,7 @@
         "filename": "prinex-dodaj-radio-i-popularny-do-swatchow-rozmiaru.php",
         "scope": "front-end",
         "active": false,
-        "description": ""
+        "description": "NIEUZYWANY od 2026-06-21 — plakietka \"Popularny\" zrobiona czystym CSS (::after na klasie button-variable-item-50-x-80 generowanej przez wtyczke swatchy) w snippecie #13, zero JS, zero ryzyka zlego sluga. Zostawiony jako odlozony kod, nie usuniety."
     },
     {
         "id": "9",
@@ -101,6 +101,6 @@
         "filename": "prinex-strona-produktu-layout-i-hooki-etap1.php",
         "scope": "front-end",
         "active": true,
-        "description": "Layout 58\/42 na istniejacej strukturze WC (.images\/.summary), przeniesienie breadcrumb do prawej kolumny, usuniecie domyslnego price\/meta\/sharing\/tabs, filtr przycisku na \"Zamawiam\" — wylacznie dla is_product(). Wspolpracuje z override woocommerce\/single-product\/add-to-cart\/variable.php (plik w repo, nie w Code Snippets)."
+        "description": "ROZBUDOWANY 2026-06-21 1:1 ze wzoru Strona Produktu PRINEX.html: klasy cfg-block/cfg-label/qty-list/sum-card/dlv/btn-cta, reskin zywych swatchy (opt-row, checkmark CSS), plakietka Popularny (CSS ::after). Wspolpracuje z override variable.php + variation-add-to-cart-button.php (pliki w repo, nie w Code Snippets) i z snippetem #7 (ceny Nakladu)."
     }
 ]

@@ -3,11 +3,19 @@
  * PRINEX — override: konfigurator wariantow (Format / Naklad) + Podsumowanie + ZAMAWIAM
  *
  * Bazuje na woocommerce/templates/single-product/add-to-cart/variable.php (WC, wersja bazowa 9.6.0).
- * Etap 1 (warstwa wizualna): struktura + statyczne wartosci domyslnego wariantu.
+ * ETAP 1 — warstwa wizualna 1:1 ze wzoru 04-mockupy/02-strona-produktu/Strona Produktu PRINEX.html
+ * (klasy: cfg-block, cfg-label, cfg-num, qty-list, cfg-label-nak, sum-card, dlv, btn-cta...).
+ * DANE: rozmiary/ceny/rabaty z bazy WooCommerce, NIE ze wzoru (wzor mial fikcyjne 70x100/100x150
+ * i fikcyjne ceny — ignorowane).
+ *
  * Zachowane bez zmian: wc_dropdown_variation_attribute_options() per atrybut (woo-variation-swatches
  * filtruje jego output), .variations jako rodzic <select> oraz .single_variation/.single_variation_wrap
  * (wymagane przez assets/js/frontend/add-to-cart-variation.js) — bez tego dopasowywanie wariantu
  * i poprawne dodanie do koszyka przestaje dzialac.
+ *
+ * "Wlasny format" / "Wlasny naklad" (custom-panel ze wzoru) — POMINIETE w Etapie 1 (nie sa realnymi
+ * wartosciami atrybutow, to funkcja Etapu 2/indywidualnego zamowienia). TODO Etap 2: dodac wiersz +
+ * panel z polami, walidacja.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,6 +30,12 @@ $variations_attr = function_exists( 'wc_esc_json' ) ? wc_esc_json( $variations_j
 $prinex_attr_labels = array(
 	'pa_rozmiar' => __( 'Format', 'prinex' ),
 	'pa_naklad'  => __( 'Nakład', 'prinex' ),
+);
+// ID listy per atrybut — zgodne ze wzorem (#sizeList / #qtyList), wykorzystywane rowniez jako
+// kotwica specyficznosci CSS (patrz snippet #13: #sizeList/#qtyList .variable-item...).
+$prinex_attr_ids = array(
+	'pa_rozmiar' => 'sizeList',
+	'pa_naklad'  => 'qtyList',
 );
 
 // Domyslny wariant — do statycznej karty "Podsumowanie" i paska dostawy (Etap 1)
@@ -55,15 +69,30 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 			<?php
 			$prinex_block_num = 1;
 			foreach ( $attributes as $attribute_name => $options ) :
-				$prinex_label = isset( $prinex_attr_labels[ $attribute_name ] ) ? $prinex_attr_labels[ $attribute_name ] : wc_attribute_label( $attribute_name );
+				$prinex_label  = isset( $prinex_attr_labels[ $attribute_name ] ) ? $prinex_attr_labels[ $attribute_name ] : wc_attribute_label( $attribute_name );
+				$prinex_is_nak = ( 'pa_naklad' === $attribute_name );
+				$prinex_list_id = isset( $prinex_attr_ids[ $attribute_name ] ) ? $prinex_attr_ids[ $attribute_name ] : sanitize_title( $attribute_name ) . 'List';
+
+				// Aktualna (domyslna) etykieta wartosci do .lbl-val — statyczna w Etapie 1, TODO Etap 2: zywa na zmiane wyboru.
+				$prinex_cur_label = '';
+				if ( isset( $prinex_default_attrs[ $attribute_name ] ) && taxonomy_exists( $attribute_name ) ) {
+					$prinex_term = get_term_by( 'slug', $prinex_default_attrs[ $attribute_name ], $attribute_name );
+					if ( $prinex_term ) {
+						$prinex_cur_label = $prinex_term->name . ( $prinex_is_nak ? ' szt.' : '' );
+					}
+				}
 				?>
-				<div class="prinex-cfg-block">
-					<div class="prinex-cfg-label">
-						<span class="prinex-cfg-num"><?php echo esc_html( $prinex_block_num ); ?></span>
-						<?php echo esc_html( $prinex_label ); ?>
-						<span class="prinex-lbl-val" data-prinex-current="<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>"></span>
-					</div>
-					<div class="prinex-attr-options" id="prinex-<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>-options">
+				<div class="cfg-block">
+					<?php if ( $prinex_is_nak ) : ?>
+						<div class="cfg-label cfg-label-nak">
+							<span class="nak-head-left"><span class="cfg-num"><?php echo esc_html( $prinex_block_num ); ?></span><?php echo esc_html( $prinex_label ); ?> <span class="lbl-val"><?php echo esc_html( $prinex_cur_label ); ?></span></span>
+							<span class="nak-col-desc"><?php esc_html_e( 'netto / brutto', 'prinex' ); ?></span>
+							<span></span>
+						</div>
+					<?php else : ?>
+						<div class="cfg-label"><span class="cfg-num"><?php echo esc_html( $prinex_block_num ); ?></span><?php echo esc_html( $prinex_label ); ?> <span class="lbl-val"><?php echo esc_html( $prinex_cur_label ); ?></span></div>
+					<?php endif; ?>
+					<div class="qty-list" id="<?php echo esc_attr( $prinex_list_id ); ?>">
 						<?php
 						wc_dropdown_variation_attribute_options(
 							array(
@@ -103,58 +132,63 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 			$prinex_pct                 = min( 100, round( ( $prinex_total_net / $prinex_free_ship_threshold ) * 100 ) );
 			$prinex_missing             = max( 0, $prinex_free_ship_threshold - $prinex_total_net );
 			?>
-			<div class="prinex-cfg-block">
-				<div class="prinex-cfg-label"><span class="prinex-cfg-num">3</span><?php esc_html_e( 'Podsumowanie', 'prinex' ); ?></div>
+			<div class="cfg-block">
+				<div class="cfg-label"><span class="cfg-num">3</span><?php esc_html_e( 'Podsumowanie', 'prinex' ); ?></div>
 
-				<div class="prinex-sum-card">
-					<div class="prinex-sum-half">
-						<span class="prinex-sum-lab"><?php esc_html_e( 'Cena za sztukę', 'prinex' ); ?></span>
-						<span class="prinex-sum-val"><?php echo wp_kses_post( wc_price( $prinex_unit_net ) ); ?></span>
-						<span class="prinex-sum-brutto"><?php esc_html_e( 'brutto', 'prinex' ); ?> <?php echo wp_kses_post( wc_price( $prinex_unit_gross ) ); ?></span>
+				<div class="sum-card">
+					<div class="sum-half">
+						<span class="sum-lab grey"><?php esc_html_e( 'Cena za sztukę', 'prinex' ); ?></span>
+						<span class="sum-val"><?php echo wp_kses_post( wc_price( $prinex_unit_net ) ); ?></span>
+						<span class="sum-brutto"><?php esc_html_e( 'brutto', 'prinex' ); ?> <?php echo wp_kses_post( wc_price( $prinex_unit_gross ) ); ?></span>
 					</div>
-					<div class="prinex-sum-div"></div>
-					<div class="prinex-sum-half prinex-sum-right">
-						<span class="prinex-sum-lab"><?php esc_html_e( 'Suma', 'prinex' ); ?></span>
-						<span class="prinex-sum-val"><?php echo wp_kses_post( wc_price( $prinex_total_net ) ); ?></span>
-						<span class="prinex-sum-brutto"><?php esc_html_e( 'brutto', 'prinex' ); ?> <?php echo wp_kses_post( wc_price( $prinex_total_gross ) ); ?></span>
+					<div class="sum-div"></div>
+					<div class="sum-half right">
+						<span class="sum-lab navy"><?php esc_html_e( 'Suma', 'prinex' ); ?></span>
+						<span class="sum-val"><?php echo wp_kses_post( wc_price( $prinex_total_net ) ); ?></span>
+						<span class="sum-brutto"><?php esc_html_e( 'brutto', 'prinex' ); ?> <?php echo wp_kses_post( wc_price( $prinex_total_gross ) ); ?></span>
 					</div>
 				</div>
 
-				<div class="prinex-dlv">
-					<div class="prinex-dlv-row">
+				<div class="dlv">
+					<div class="dlv-row">
 						<?php if ( $prinex_total_net >= $prinex_free_ship_threshold ) : ?>
-							<span class="prinex-dlv-left prinex-dlv-done"><?php esc_html_e( 'Masz darmową dostawę', 'prinex' ); ?></span>
-							<span class="prinex-dlv-right"><?php esc_html_e( 'Gratis', 'prinex' ); ?></span>
+							<span class="dlv-left"><?php esc_html_e( 'Masz darmową dostawę', 'prinex' ); ?></span>
+							<span class="dlv-right"><svg viewBox="0 0 24 24" fill="none" stroke="#78B833" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg><?php esc_html_e( 'Gratis', 'prinex' ); ?></span>
 						<?php else : ?>
-							<span class="prinex-dlv-left"><?php esc_html_e( 'Jeszcze tylko troszkę..', 'prinex' ); ?></span>
-							<span class="prinex-dlv-right"><?php esc_html_e( 'brakuje', 'prinex' ); ?> <?php echo wp_kses_post( wc_price( $prinex_missing ) ); ?></span>
+							<span class="dlv-left"><?php esc_html_e( 'Jeszcze tylko troszkę..', 'prinex' ); ?></span>
+							<span class="dlv-right"><?php esc_html_e( 'brakuje', 'prinex' ); ?> <?php echo wp_kses_post( wc_price( $prinex_missing ) ); ?></span>
 						<?php endif; ?>
 					</div>
-					<div class="prinex-track">
-						<div class="prinex-fill" style="width:<?php echo esc_attr( $prinex_pct ); ?>%"></div>
+					<div class="track">
+						<div class="fill" style="width:<?php echo esc_attr( $prinex_pct ); ?>%"></div>
+						<div class="truck" style="left:<?php echo esc_attr( $prinex_pct ); ?>%">
+							<svg viewBox="0 0 24 24" fill="none" stroke="#0B457D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3V6a1 1 0 0 1 1-1h9v12M9 17h6m4 0h2v-6h-6m0-3h3l3 4"></path></svg>
+						</div>
 					</div>
 				</div>
-				<p class="prinex-static-note screen-reader-text">Wartości statyczne dla domyślnego wariantu — Etap 1 (warstwa wizualna).</p>
+				<p class="screen-reader-text">Wartości statyczne dla domyślnego wariantu — Etap 1 (warstwa wizualna). Etap 2: kalkulator na zmianę wyboru.</p>
 			</div>
 		<?php endif; ?>
 
-		<div class="single_variation_wrap">
-			<?php
-			do_action( 'woocommerce_before_single_variation' );
-			do_action( 'woocommerce_single_variation' );
-			do_action( 'woocommerce_after_single_variation' );
-			?>
+		<div class="cfg-order">
+			<div class="single_variation_wrap">
+				<?php
+				do_action( 'woocommerce_before_single_variation' );
+				do_action( 'woocommerce_single_variation' );
+				do_action( 'woocommerce_after_single_variation' );
+				?>
+			</div>
+
+			<div class="next-step">
+				<svg viewBox="0 0 24 24"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+				<?php esc_html_e( 'Następny krok: wgraj pliki', 'prinex' ); ?>
+			</div>
 		</div>
 
 	<?php endif; ?>
 
 	<?php do_action( 'woocommerce_after_variations_form' ); ?>
 </form>
-
-<div class="prinex-next-step">
-	<svg viewBox="0 0 24 24" class="prinex-next-ic"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
-	<?php esc_html_e( 'Następny krok: wgraj pliki', 'prinex' ); ?>
-</div>
 
 <?php
 do_action( 'woocommerce_after_add_to_cart_form' );
