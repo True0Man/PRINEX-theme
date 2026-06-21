@@ -57,6 +57,40 @@ mechanizmach naraz**, oba potrzebne razem:
 - Próg darmowej dostawy na pasku: 200 zł (zgodnie z topbar, nie 250 zł jak w
   oryginalnej makiecie Claude Design).
 
+## 🐛 Naprawione bugi layoutu po wizualnym przeglądzie, 2026-06-21
+
+**Bug 1 — konfigurator skompresowany do ~150px.** Selektor `.product.type-product`
+(bez kwalifikatora tagu) dopasowywał TRZY różne elementy: `<article class="post-17
+product type-product...">` (wrapper GeneratePress), `<div id="product-17"
+class="product type-product...">` (prawdziwy kontener WooCommerce) i każdy `<li
+class="product type-product...">` w sekcji "Podobne produkty". Grid 58/42
+nakładał się podwójnie (article → 1 dziecko w kolumnie 1 → w nim div ze swoim
+własnym gridem 58/42, ale liczonym z 58% szerokości, nie z całości) — stąd
+kolumna konfiguratora ~42% z 58% ≈ 24% strony. **Naprawione:** selektor zwężony
+do `div.product.type-product` (sprawdzone w DOM: dokładnie 1 `<div>` ma obie
+klasy razem).
+
+**Bug 2a — natywna cena wariantu wracała mimo `display:none`.** WooCommerce JS
+(`assets/js/frontend/add-to-cart-variation.js`) robi po dopasowaniu wariantu
+`$singleVariation.slideDown()`/`.show()` — jQuery ustawia **inline**
+`style="display:..."`, które bije zwykłą regułę CSS. **Naprawione:** `display:none
+!important` na `.woocommerce-variation.single_variation`.
+
+**Bug 2b — fioletowy przycisk ZAMAWIAM.** WooCommerce ma wbudowaną regułę
+`.woocommerce:where(body:not(...)) button.button.alt{background-color:#7f54b3}`
+— `:where()` ma zerową specyficzność, ale tag `button` + klasy `button`+`alt`
+dawały specyficzność (0,3,1), wyższą niż nasza (0,3,0) bez kwalifikatora tagu.
+**Naprawione:** `!important` na `background-color` (reguła bazowa + `:hover`).
+
+**Bug 3 — kolizja ceny/rabatu w wierszach Nakładu — ODŁOŻONY do Bloku B
+(decyzja, nie przeoczenie).** Przyczyna: snippet #7 dokleja blokowy
+`<div class="prinex-swatch-enhanced">` do małego, ciasnego kwadratowego
+swatcha (`wvs-style-squared`) bez żadnego CSS ograniczającego — treść nie ma
+gdzie się zmieścić. To NIE jest `position:absolute` (sprawdzone), tylko
+przepełnienie małego kontenera. Właściwa naprawa = przebudowa wiersza Nakładu
+na pełną szerokość w Bloku B — łatka teraz zostałaby wyrzucona przy
+przebudowie.
+
 ## ✅ Naprawiony bug — snippet #10 (SVG upload support), 2026-06-19
 
 Kod w bazie był uszkodzony: każda zmienna (`$mimes`, `$file`, `$filename`,

@@ -88,24 +88,31 @@ add_action( 'wp_head', function() {
 	}
 	?>
 	<style>
-	/* ---- layout 58/42 (na istniejacej strukturze WC .images/.summary, bez forka content-single-product.php) ---- */
-	.product.type-product{
+	/* ---- layout 58/42 (na istniejacej strukturze WC .images/.summary, bez forka content-single-product.php) ----
+	   UWAGA (BUG 1, naprawione): ".product.type-product" bez kwalifikatora tagu lapalo TRZY rozne elementy —
+	   <article class="post-17 product type-product..."> (wrapper GP), <div id="product-17" class="product
+	   type-product..."> (prawdziwy kontener WC) ORAZ kazdy <li class="product type-product..."> w "Podobne
+	   produkty". Efekt: grid 58/42 nakladal sie podwojnie (article->1 dziecko w kolumnie 1, w nim div->wlasny
+	   grid 58/42 z 58% szerokosci) — konfigurator wychodzil na ~42% z 58% = ~24% strony. Selektor zwezony do
+	   "div.product.type-product" (tag div) — dopasowuje WYLACZNIE prawdziwy kontener WC (sprawdzone w DOM:
+	   dokladnie 1 <div> ma obie klasy razem). */
+	div.product.type-product{
 		display:grid;
 		grid-template-columns:minmax(0,58fr) minmax(0,42fr);
 		gap:56px;
 		align-items:start;
 	}
-	.product.type-product > .images,
-	.product.type-product > .summary{
+	div.product.type-product > .images,
+	div.product.type-product > .summary{
 		float:none;
 		width:auto;
 		margin:0;
 	}
-	.product.type-product > .images{ grid-column:1; grid-row:1; position:sticky; top:128px; }
-	.product.type-product > .summary{ grid-column:2; grid-row:1; }
+	div.product.type-product > .images{ grid-column:1; grid-row:1; position:sticky; top:128px; }
+	div.product.type-product > .summary{ grid-column:2; grid-row:1; }
 	/* "Podobne produkty" (woocommerce_after_single_product_summary) zostaje jako pelna szerokosc pod konfiguratorem — nie usuwamy, poza zakresem Etapu 1 */
-	.product.type-product > .related.products{ grid-column:1 / -1; }
-	.product.type-product .woocommerce-product-gallery{
+	div.product.type-product > .related.products{ grid-column:1 / -1; }
+	div.product.type-product .woocommerce-product-gallery{
 		border-radius:14px;
 		overflow:hidden;
 		box-shadow:0 2px 14px rgba(11,69,125,.08);
@@ -122,11 +129,11 @@ add_action( 'wp_head', function() {
 	.prinex-cfg-crumb .sep{ color:#78B833; opacity:.5; }
 
 	/* ---- tytul / ocena (stylujemy natywne elementy WC, bez zmiany markupu) ---- */
-	.product.type-product .summary .product_title{
+	div.product.type-product .summary .product_title{
 		font-family:'Figtree',sans-serif; color:#0B457D; font-weight:700;
 		font-size:36px; line-height:1.12; margin:0 0 14px;
 	}
-	.product.type-product .summary .star-rating{ font-size:14px; }
+	div.product.type-product .summary .star-rating{ font-size:14px; }
 
 	/* ---- opis + link ---- */
 	.prinex-cfg-desc{
@@ -175,20 +182,30 @@ add_action( 'wp_head', function() {
 	.prinex-track{ position:relative; height:9px; background:#E9EEF2; border-radius:50px; }
 	.prinex-fill{ position:absolute; top:0; left:0; height:100%; background:#78B833; border-radius:50px; }
 
-	/* ---- ukrycie natywnego boxu ceny wariantu + pola Ilosc (mamy wlasna karte Podsumowanie) ---- */
-	.product.type-product .single_variation_wrap .woocommerce-variation.single_variation{ display:none; }
-	.product.type-product .single_variation_wrap .quantity{ display:none; }
+	/* ---- ukrycie natywnego boxu ceny wariantu + pola Ilosc (mamy wlasna karte Podsumowanie) ----
+	   UWAGA (BUG 2a, naprawione): WC JS (add-to-cart-variation.js) robi po wybraniu wariantu
+	   .single_variation.slideDown()/.show() — jQuery ustawia INLINE style="display:...", ktory bije
+	   zwykly CSS bez !important. Stad cena "349,00 zl (429,27 brutto)" wracala mimo display:none w arkuszu.
+	   Pole Ilosc NIE jest ruszane przez ten JS (PHP-only render) — !important tu tylko dla bezpieczenstwa/
+	   spojnosci. POTWIERDZONE: ukrycie .quantity przez CSS nie usuwa pola z formularza (input zostaje w DOM,
+	   wartosc "1" i tak leci w POST) — dodawanie do koszyka dziala bez zmian, nakl ad i tak wybierany wariantem. */
+	div.product.type-product .single_variation_wrap .woocommerce-variation.single_variation{ display:none !important; }
+	div.product.type-product .single_variation_wrap .quantity{ display:none !important; }
 
-	/* ---- przycisk ZAMAWIAM (Blok C) ---- */
-	.product.type-product .single_add_to_cart_button{
+	/* ---- przycisk ZAMAWIAM (Blok C) ----
+	   UWAGA (BUG 2b, naprawione): WooCommerce ma wbudowana regule
+	   ".woocommerce:where(body:not(...)) button.button.alt{background-color:#7f54b3}" — :where() ma
+	   zerowa specyficznosc, ale tag "button" + klasy "button.alt" dawaly (0,3,1), wyzsze niz nasze
+	   (0,3,0) bez tagu — fiolet wygrywal. Dodane !important na background-color (obie reguly, w tym hover). */
+	div.product.type-product .single_add_to_cart_button{
 		display:block; width:100%; text-align:center;
-		background:#78B833; color:#fff !important; border:none; border-radius:50px;
+		background:#78B833 !important; color:#fff !important; border:none; border-radius:50px;
 		font-family:'Figtree',sans-serif; font-weight:700; font-size:19px;
 		text-transform:uppercase; letter-spacing:.03em; padding:18px 28px;
 		cursor:pointer; transition:background .2s ease, box-shadow .2s ease;
 	}
-	.product.type-product .single_add_to_cart_button:hover{
-		background:#62992a; box-shadow:0 10px 24px rgba(120,184,51,.34);
+	div.product.type-product .single_add_to_cart_button:hover{
+		background:#62992a !important; box-shadow:0 10px 24px rgba(120,184,51,.34);
 	}
 
 	/* ---- "Nastepny krok: wgraj pliki" ---- */
