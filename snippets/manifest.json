@@ -94,5 +94,13 @@
         "scope": "front-end",
         "active": true,
         "description": "Pelna szerokosc, breadcrumb\/head\/filtry, tile-grid styling, sekcja SEO CSS\/JS — wylacznie dla product_cat naklejki-3d-premium"
+    },
+    {
+        "id": "13",
+        "name": "PRINEX — Strona produktu: layout 58/42 + hooki konfiguratora (Etap 1)",
+        "filename": "prinex-strona-produktu-layout-i-hooki-etap1.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Layout 58\/42 na istniejacej strukturze WC (.images\/.summary), przeniesienie breadcrumb do prawej kolumny, usuniecie domyslnego price\/meta\/sharing\/tabs, filtr przycisku na \"Zamawiam\" — wylacznie dla is_product(). Wspolpracuje z override woocommerce\/single-product\/add-to-cart\/variable.php (plik w repo, nie w Code Snippets)."
     }
 ]

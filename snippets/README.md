@@ -26,6 +26,36 @@ Każdy plik ma na górze nagłówek z ID snippetu, scope i statusem
 | 10 | `prinex-svg-upload-support.php` | **global** | **aktywny** | Zezwala na wgrywanie SVG/SVGZ do biblioteki mediów. Naprawiony 2026-06-19 — patrz niżej. |
 | 11 | `prinex-strona-glowna-css-js-z-eksportu-claude-design.php` | front-end | **aktywny** | Pełny CSS/JS strony głównej (hero, kafle, FAQ, opinie, responsywność) — przeniesiony 1:1 z makiety `04-mockupy/01-strona-glowna/strona-glowna-unpacked.html`. Ładuje się tylko na `is_front_page()`. |
 | 12 | `prinex-kategoria-naklejki-3d-premium-layout-css-js.php` | front-end | **aktywny** | CSS/JS strony kategorii "Naklejki 3D Premium" (breadcrumb, filtry, siatka kafli, sekcja SEO) — wyłącznie dla `product_cat = naklejki-3d-premium`. |
+| 13 | `prinex-strona-produktu-layout-i-hooki-etap1.php` | front-end | **aktywny** | Strona produktu, Etap 1 (warstwa wizualna): layout 58/42 na `.images`/`.summary`, breadcrumb przeniesiony do prawej kolumny, usunięcie domyślnego price/meta/sharing/tabs, filtr przycisku na "Zamawiam" — wyłącznie dla `is_product()`. Współpracuje z override `woocommerce/single-product/add-to-cart/variable.php` (patrz niżej — to plik motywu, nie snippet). |
+
+## 🧩 Strona produktu — Etap 1 (warstwa wizualna), 2026-06-21
+
+Konfigurator FORMAT/NAKŁAD + Podsumowanie + ZAMAWIAM zbudowany na **dwóch
+mechanizmach naraz**, oba potrzebne razem:
+
+- **Snippet #13** (ten katalog) — layout 58/42, hooki WooCommerce, CSS.
+- **`../woocommerce/single-product/add-to-cart/variable.php`** — override
+  szablonu WooCommerce (plik motywu, **nie** Code Snippet) — numerowane bloki
+  "1 FORMAT" / "2 NAKŁAD" / "3 Podsumowanie", pasek dostawy, przycisk, podpis
+  "Następny krok: wgraj pliki". Zachowuje `wc_dropdown_variation_attribute_options()`
+  per atrybut (wymagane przez wtyczkę woo-variation-swatches) oraz `.variations`/
+  `.single_variation`/`.single_variation_wrap` (wymagane przez
+  `assets/js/frontend/add-to-cart-variation.js` — bez tego dopasowywanie
+  wariantu i dodanie do koszyka przestaje działać).
+
+**Decyzje podjęte przy wdrożeniu (do potwierdzenia):**
+- Etykieta atrybutu `pa_rozmiar` wyświetlana jako "Format" (UI), nie "Rozmiar"
+  (nazwa taksonomii bez zmian) — zgodnie z briefem wdrożenia.
+- Domyślne zakładki WC "Informacje dodatkowe / Opinie" wyłączone (redundantne
+  z konfiguratorem; "Opinie" dostaną własną sekcję w Bloku E).
+- "Podobne produkty" (related products) — pozostawione, tylko rozciągnięte na
+  pełną szerokość gridu (poza zakresem makiety, ale działająca funkcja, nie
+  usuwana bez powodu).
+- Karta "Podsumowanie" i pasek dostawy: wartości **statyczne** dla domyślnego
+  wariantu (30×60 + 100 szt., realne dane z `wc_get_price_including_tax`) —
+  TODO w kodzie przy Etapie 2 (kalkulator na zmianę wyboru).
+- Próg darmowej dostawy na pasku: 200 zł (zgodnie z topbar, nie 250 zł jak w
+  oryginalnej makiecie Claude Design).
 
 ## ✅ Naprawiony bug — snippet #10 (SVG upload support), 2026-06-19
 
