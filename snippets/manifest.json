@@ -49,11 +49,11 @@
     },
     {
         "id": "7",
-        "name": "PRINEX — Naklad: ceny/rabaty per wiersz w PHP (Etap 1, bez JS)",
+        "name": "PRINEX — Nakład: ceny/rabaty per wiersz + silnik (#7, Etap 2)",
         "filename": "prinex-dodaj-cene-i-rabat-do-swatchow-nakladu.php",
         "scope": "front-end",
         "active": true,
-        "description": "PRZEPISANY 2026-06-21 z JS (wp_footer DOM-injection, ceny zahardkodowane) na filtr PHP woocommerce_dropdown_variation_attribute_options_html (priorytet 21) — wstrzykuje realne ceny netto/brutto + \"Taniej o X%\" liczone z wariantow domyslnego Formatu. Zero JS."
+        "description": "ETAP 2 (2026-06-27): ceny z prinex_sale_net() zamiast get_price(); fallback na get_price() gdy silnik niedostepny. Badge OPTYMALNY (zielony) z _prinex_optymalny zamiast hardkodowanego HIT. Markup/klasy/pozycje bez zmian."
     },
     {
         "id": "8",
@@ -118,5 +118,13 @@
         "scope": "admin",
         "active": true,
         "description": "Podstrona wp-admin Cennik PRINEX (pod WooCommerce). Formularz: folie, stawki globalne, przedzialy nakladu. Zapis do prinex_cennik. Meta box na produkcie: _prinex_folia, _prinex_rodzaj, _prinex_optymalny."
+    },
+    {
+        "id": "25",
+        "name": "PRINEX — WC filtry cennika (#25, Etap 2)",
+        "filename": "prinex-cennik-wc.php",
+        "scope": "global",
+        "active": true,
+        "description": "Filtry WooCommerce: woocommerce_available_variation (display_price z prinex_sale_net) + woocommerce_before_calculate_totals (cena koszyka/kasy). NIE dotyka variable.php, #13, #14. Wymaga #23."
     }
 ]
