@@ -40,6 +40,49 @@ Claude Design  ──►  Claude Code  ──►  serwer (SSH)  ──►  GitHu
 > działania strony** — zmianę trzeba wprowadzić w wp-admin / przez WP-CLI, a potem
 > ponownie wyeksportować mirror.
 
+> **Ważne — GeneratePress Theme Builder (elementy PHP) — procedura edycji:**
+> Elementy 161 (nagłówek) i 162 (stopka) są typu `hook` + `execute_php`.
+> GeneratePress renderuje PHP z **`wp_postmeta._generate_element_content`**,
+> NIE z `wp_posts.post_content` — edycja `post_content` jest przy renderowaniu ignorowana.
+>
+> **Procedura zmiany treści (4 kroki, zawsze w tej kolejności):**
+>
+> **① Zmodyfikuj treść** — zapisz nową wersję do pliku tymczasowego (np. `/tmp/el161.txt`).
+> Plik zaczyna od `<?php`. Wgraj przez SCP: `scp plik.php prinex:/tmp/el161.txt`.
+>
+> **② Sprawdź składnię PHP (`php -l`) — jeśli błąd, NIE wykonuj kroku ③:**
+> ```bash
+> php -l /tmp/el161.txt
+> # Oczekiwany wynik: "No syntax errors detected in /tmp/el161.txt"
+> # Jeśli błąd składni → popraw plik, powtórz lint, NIE zapisuj do bazy.
+> ```
+>
+> **③ Zapisz przez `FROM_BASE64()` w SQL (jedyna bezpieczna metoda):**
+> ```bash
+> python3 - <<'EOF'
+> import base64, subprocess
+> b = base64.b64encode(open('/tmp/el161.txt', 'rb').read()).decode()
+> sql = f"UPDATE wp_postmeta SET meta_value=FROM_BASE64('{b}') WHERE post_id=161 AND meta_key='_generate_element_content' LIMIT 1;"
+> r = subprocess.run(['/usr/bin/wp', 'db', 'query', sql], capture_output=True, text=True)
+> print('SQL rc:', r.returncode, r.stderr.strip() or 'OK')
+> EOF
+> ```
+>
+> **④ Potwierdź HTTP 200 na żywej stronie:**
+> ```bash
+> curl -s -o /dev/null -w "%{http_code}" https://prinex.com.pl/
+> # Oczekiwany wynik: 200  (jeśli inny — sprawdź logi PHP, cofnij przez backup SQL)
+> ```
+>
+> **Dlaczego NIE `update_post_meta()` / `wp eval update_post_meta(...)`:**
+> WordPress `$wpdb` niszczy backslashe podczas zapisu — `\n` (newline w treści) staje
+> się literą `n`. Powoduje `Parse error: unexpected variable $logo` na żywej stronie.
+> *(Błąd udokumentowany 2026-06-26: dodanie ikony aktówki przez `update_post_meta` → strona down)*
+>
+> **Dlaczego NIE edycja `post_content` / WP-Admin / `wp_update_post()`:**
+> GeneratePress ignoruje `post_content` — zmiana nie wejdzie na stronę.
+> *(Błąd udokumentowany 2026-06-26: edycja nagłówka przez WP-Admin → brak efektu na żywej stronie)*
+
 ### Tokeny brandowe
 
 | Token | Hex | Użycie |
@@ -94,12 +137,25 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 4 | current-year (shortcode) | content | 🗑️ | Przykład z wtyczki, nieużywany |
 | 5 | ukryj „Wybierz opcję" w dropdownach | front-end | ✅ | Usuwa `show_option_none` z wariantów WooCommerce |
 | 6 | radio buttons zamiast dropdownów | front-end | 💤 | Zastąpione wtyczką Variation Swatches |
-| 7 | cena + rabat na swatchach Nakładu | front-end | ✅ | JS: cena i „Taniej o X%" na swatchach |
+| 7 | cena + rabat na swatchach Nakładu (Etap 2) | front-end | ✅ | PHP: ceny z prinex_sale_net() (#23); badge OPTYMALNY z _prinex_optymalny; fallback na get_price() |
 | 8 | „POPULARNY" na swatchu Rozmiaru | front-end | 💤 | Wyłączony — do weryfikacji |
 | 9 | Figtree Google Font | front-end | ✅ | Ładuje font dla całego serwisu |
 | 10 | SVG upload support | global | ✅ | Zezwala na upload SVG/SVGZ do mediów. *Naprawiony — patrz §6* |
 | 11 | Strona główna — CSS/JS | front-end | ✅ | Hero, kafle, FAQ, opinie; tylko `is_front_page()`. *Oczyszczony z martwego nagłówka makiety — patrz §6* |
 | 12 | Kategoria 3D Premium — CSS/JS | front-end | ✅ | Breadcrumb, filtry, siatka, SEO; tylko ta kategoria |
+| 13 | Strona produktu: layout 58/42 + hooki (Etap 1) | front-end | ✅ | Split 58/42, swathe, sum-card, CSS konfiguratora — NETLOCKED |
+| 14 | Strona produktu: sekcje dolne (FAQ/O materiale/Trust) | front-end | ✅ | Sekcje dolne strony produktu — zero logiki cen |
+| 15 | Krok 2: Wgraj pliki (CSS/JS) | front-end | ✅ | Upload dropzone /wgraj-pliki/ |
+| 16 | Neutralizacja GP graphite (button focus/hover) | front-end | ✅ | Globalne — naprawia niebieski focus z GeneratePress |
+| 17 | ZAMAWIAM redirect do upload | global | ✅ | Po dodaniu do koszyka → /wgraj-pliki/ |
+| 18 | prinex_debug_cart_2b | global | 💤 | Debug — wyłączony |
+| 19 | prinex_finalize_debug | global | 💤 | Debug — wyłączony |
+| 20 | prinex_debug_write | global | 💤 | Debug — wyłączony |
+| 21 | Koszyk: layout CSS/JS (Etap 1) | front-end | ✅ | Stylizacja koszyka WooCommerce |
+| 22 | Notice dodano do koszyka — brandowy | front-end | ✅ | Zielony notice z auto-dismiss |
+| 23 | Silnik cennika (#23) | global | ✅ | prinex_sale_net(), prinex_sale_rate(), prinex_rozmiar_to_dims() — dane w prinex_cennik (JSON) |
+| 24 | Panel admina Cennik (#24) | admin | ✅ | Podstrona wp-admin Cennik PRINEX; meta box: folia/rodzaj/OPTYMALNY |
+| 25 | WC filtry cennika (#25) | global | ✅ | woocommerce_available_variation + woocommerce_before_calculate_totals z prinex_sale_net() |
 
 ---
 
@@ -167,7 +223,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 
 ### Faza 4 — Strona produktu ⏳
 - [ ] Swatche wariantów (Nakład, Rozmiar)
-- [ ] Cena + rabat na swatchach (snippet #7)
+- [x] Cena + rabat na swatchach (snippet #7) + silnik cennika (snippety #23/#24/#25, Etap 2 — 2026-06-27)
 - [ ] Galeria, opis, dane techniczne
 
 ### Faza 5 — Koszyk i checkout ⏳
@@ -184,7 +240,75 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 
 ---
 
-## 8. Legenda statusów
+## 8. Upload plików zamówień — `inc/prinex-upload.php`
+
+Plik `inc/prinex-upload.php` to backend uploadu klienta i hooki WooCommerce obsługujące
+pliki do zamówień. Jest to **plik PHP w child theme** (nie snippet), załadowany przez
+`functions.php` przez `require_once`.
+
+### Architektura modułu
+
+| Obszar | Opis |
+|---|---|
+| **Front-end** | Strona `/wgraj-pliki/` (WP ID 170): dropzone, 3 ścieżki (wgraj/pomiń/projekt) |
+| **AJAX upload** | Nonce, UUID4 katalog, MIME+ext walidacja, SVG sanitize, 50 MB/plik · 100 MB/token |
+| **Hook 2A** | `woocommerce_add_to_cart_redirect` → redirect do `/wgraj-pliki/` |
+| **Hook 2B** | `template_redirect`: generuje token per wizyta, pin do cart item meta |
+| **Hook 2C** | Przenosi pliki `{token}/` do `order_{id}/` przy checkout/zmianie statusu |
+| **Download** | `prinex_ajax_download_file`: endpoint z nonce + realpath guard |
+
+### Hook 2C — podfolde dla zamówień multi-item (wdrożony 2026-06-26)
+
+Funkcja `prinex_transfer_files_to_order($order)` wywoływana przez:
+- `woocommerce_checkout_order_created`
+- `woocommerce_order_status_changed -> processing/completed`
+
+**Logika przenoszenia:**
+
+| Pozycje z plikami | Zachowanie |
+|---|---|
+| 0 | return (brak plików) |
+| 1 | pliki płasko do `order_{id}/` (bez podfoldera) |
+| >1 | każda pozycja dostaje podfolder `{format} - {nakład}` |
+
+**Schemat nazwy podfoldera:**
+
+```
+pa_rozmiar term name + pa_naklad term name
+Np. "30 × 60" + "100 szt." → "30×60 - 100szt"
+```
+
+Spacje usunięte (`str_replace`), trailing `. ` ucięte (`rtrim`),
+znaki niebezpieczne (`/ \ : * ? " < > |`) usunięte, polskie znaki i `×` zachowane.
+Kolizja (dwie pozycje z tym samym formatem/nakładem): sufiks `(1)`, `(2)` itd.
+
+**Metadane `_prinex_upload_files[n][disk_name]`:**
+- 1 pozycja z plikami: `plik.pdf`
+- >1 pozycji: `30x60 - 100szt/plik.pdf` (relative: subfolder/plik)
+
+**Endpoint AJAX pobierania** (`?file=`): zaktualizowany w tej samej sesji.
+Akceptuje dokładnie 1 poziom `/` — blokuje `\`, `..`, wiodące `/`, >1 slash.
+Realpath check pozostaje ostateczną linią obrony.
+
+**Idempotencja:** jeśli katalog `{token}/` już przeniesiony (nie istnieje) — skip.
+
+**Backup przed zmianą:** `prinex-upload.php.bak-20260626` w tym samym katalogu.
+
+### Synchronizacja plików zamówień → OneDrive
+
+Osobna infrastruktura poza tym repo — kontener prinex-sync (LXC na Proxmox).
+Pełna dokumentacja: `docs/sync-onedrive.md` w repo PRINEX (C:/Claude).
+
+Skrót przepływu:
+```
+order_{id}/ na LH.pl --SFTP--> kontener prinex-sync --rclone--> OneDrive klienta
+```
+Trigger: operator zmienia status BaseLinker na "Nowe zamówienia" (ID 118439).
+Cron: co 15 min na kontenerze.
+
+---
+
+## 9. Legenda statusów
 
 | Symbol | Znaczenie |
 |---|---|
@@ -197,4 +321,4 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 
 ---
 
-*Dokument żywy — aktualizowany w miarę postępów. Ostatnia aktualizacja: czerwiec 2026.*
+*Dokument żywy — aktualizowany w miarę postępów. Ostatnia aktualizacja: 2026-06-26.*
