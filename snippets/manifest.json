@@ -69,7 +69,7 @@
         "filename": "prinex-figtree-google-font.php",
         "scope": "front-end",
         "active": true,
-        "description": "Ładuje Figtree 400\/600\/700 z Google Fonts dla całego serwisu."
+        "description": "Ładuje Figtree 400/600/700 z Google Fonts dla całego serwisu."
     },
     {
         "id": "10",
@@ -77,23 +77,23 @@
         "filename": "prinex-svg-upload-support.php",
         "scope": "global",
         "active": true,
-        "description": "Zezwala na wgrywanie plików SVG\/SVGZ do biblioteki mediów. Wymagane dla logo i ikon brandowych."
+        "description": "Zezwala na wgrywanie plików SVG/SVGZ do biblioteki mediów. Wymagane dla logo i ikon brandowych."
     },
     {
         "id": "11",
-        "name": "PRINEX — Strona główna (CSS\/JS z eksportu Claude Design)",
+        "name": "PRINEX — Strona główna (CSS/JS z eksportu Claude Design)",
         "filename": "prinex-strona-glowna-css-js-z-eksportu-claude-design.php",
         "scope": "front-end",
         "active": true,
-        "description": "CSS i JS strony głównej przeniesione 1:1 z 04-mockupy\/01-strona-glowna\/strona-glowna-unpacked.html. Ładuje się tylko na is_front_page()."
+        "description": "CSS i JS strony głównej przeniesione 1:1 z 04-mockupy/01-strona-glowna/strona-glowna-unpacked.html. Ładuje się tylko na is_front_page()."
     },
     {
         "id": "12",
-        "name": "PRINEX — Kategoria Naklejki 3D Premium (layout + CSS\/JS)",
+        "name": "PRINEX — Kategoria Naklejki 3D Premium (layout + CSS/JS)",
         "filename": "prinex-kategoria-naklejki-3d-premium-layout-css-js.php",
         "scope": "front-end",
         "active": true,
-        "description": "Pelna szerokosc, breadcrumb\/head\/filtry, tile-grid styling, sekcja SEO CSS\/JS — wylacznie dla product_cat naklejki-3d-premium"
+        "description": "Pelna szerokosc, breadcrumb/head/filtry, tile-grid styling, sekcja SEO CSS/JS — wylacznie dla product_cat naklejki-3d-premium"
     },
     {
         "id": "13",
@@ -102,5 +102,21 @@
         "scope": "front-end",
         "active": true,
         "description": "ROZBUDOWANY 2026-06-21 1:1 ze wzoru Strona Produktu PRINEX.html: klasy cfg-block/cfg-label/qty-list/sum-card/dlv/btn-cta, reskin zywych swatchy (opt-row, checkmark CSS), plakietka Popularny (CSS ::after). Wspolpracuje z override variable.php + variation-add-to-cart-button.php (pliki w repo, nie w Code Snippets) i z snippetem #7 (ceny Nakladu)."
+    },
+    {
+        "id": "23",
+        "name": "PRINEX — Silnik cennika (#23)",
+        "filename": "prinex-cennik-engine.php",
+        "scope": "global",
+        "active": true,
+        "description": "Silnik cennika (II podejscie): prinex_cennik(), prinex_sale_rate(), prinex_sale_net(), prinex_rozmiar_to_dims(), prinex_zywica_rate(), prinex_sanitize_cennik(). Dane w opcji prinex_cennik (JSON). BRAK filtrow WC — te sa w #25 (Etap 2)."
+    },
+    {
+        "id": "24",
+        "name": "PRINEX — Panel admina Cennik (#24)",
+        "filename": "prinex-cennik-admin.php",
+        "scope": "admin",
+        "active": true,
+        "description": "Podstrona wp-admin Cennik PRINEX (pod WooCommerce). Formularz: folie, stawki globalne, przedzialy nakladu. Zapis do prinex_cennik. Meta box na produkcie: _prinex_folia, _prinex_rodzaj, _prinex_optymalny."
     }
 ]
