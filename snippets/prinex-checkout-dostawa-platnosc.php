@@ -29,40 +29,24 @@ add_action( 'init', function () {
  * 2) POLA: NIP + typ odbiorcy (osoba/firma). Firma+NIP chowane JS-em.
  * ──────────────────────────────────────────────────────────────────────── */
 add_filter( 'woocommerce_checkout_fields', function ( $fields ) {
-	// Nazwa firmy — ZAPEWNIJ obecność (w ustawieniach WC bywa ukryta) + klasa toggle.
-	$company             = isset( $fields['billing']['billing_company'] ) ? $fields['billing']['billing_company'] : array();
-	$company['label']    = 'Nazwa firmy';
-	$company['required'] = false;
-	$company['priority'] = 32;
-	$company['class']    = array( 'form-row-wide', 'pxc-firma-only' );
-	$fields['billing']['billing_company'] = $company;
-	// NIP — nowe pole, firma only.
-	$fields['billing']['billing_nip'] = array(
-		'label'       => 'NIP',
-		'required'    => false,
-		'class'       => array( 'form-row-wide', 'pxc-firma-only' ),
-		'priority'    => 34,
-		'maxlength'   => 15,
-		'placeholder' => 'np. 1234563218',
-	);
+	// Pola Nazwa firmy + NIP (firma-only) — ŹRÓDŁO: inc/prinex-customer-fields.php
+	// (single source, reuse w książce adresowej 2c). Zachowanie BEZ ZMIAN.
+	if ( function_exists( 'prinex_add_company_nip_fields' ) ) {
+		$fields = prinex_add_company_nip_fields( $fields, 'billing' );
+	}
 	return $fields;
 } );
 
-/* Walidacja NIP gdy wybrana Firma. */
+/* Walidacja firma+NIP — ŹRÓDŁO: inc/prinex-customer-fields.php.
+ * Checkout używa walidacji DŁUGOŚCI (10 cyfr) — zachowanie #28 BEZ ZMIAN. */
 add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
-	$type = isset( $_POST['billing_customer_type'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_customer_type'] ) ) : 'osoba';
-	if ( 'firma' !== $type ) {
+	if ( ! function_exists( 'prinex_validate_company_nip' ) ) {
 		return;
 	}
-	$nip = isset( $_POST['billing_nip'] ) ? preg_replace( '/[^0-9]/', '', wp_unslash( $_POST['billing_nip'] ) ) : '';
-	if ( '' === $nip ) {
-		$errors->add( 'billing_nip', 'Podaj NIP firmy.' );
-	} elseif ( 10 !== strlen( $nip ) ) {
-		$errors->add( 'billing_nip', 'NIP powinien mieć 10 cyfr.' );
-	}
-	if ( empty( $_POST['billing_company'] ) ) {
-		$errors->add( 'billing_company', 'Podaj nazwę firmy.' );
-	}
+	$type    = isset( $_POST['billing_customer_type'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_customer_type'] ) ) : 'osoba';
+	$company = isset( $_POST['billing_company'] ) ? wp_unslash( $_POST['billing_company'] ) : '';
+	$nip     = isset( $_POST['billing_nip'] ) ? wp_unslash( $_POST['billing_nip'] ) : '';
+	prinex_validate_company_nip( $type, $company, $nip, $errors );
 }, 10, 2 );
 
 /* Zapis typu odbiorcy + NIP do zamówienia. HPOS-safe: na obiekcie order

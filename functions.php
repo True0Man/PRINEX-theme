@@ -4,6 +4,12 @@
  * functions.php
  */
 
+// Upload handler (AJAX endpoints): musi byc ladowany wszedzie, NIE tylko front-end
+require_once get_stylesheet_directory() . '/inc/prinex-upload.php';
+
+// Wspólna logika Osoba/Firma + NIP (single source — checkout #28 + książka adresowa 2c)
+require_once get_stylesheet_directory() . '/inc/prinex-customer-fields.php';
+
 // Załaduj styl motywu rodzica
 add_action( 'wp_enqueue_scripts', 'prinex_child_enqueue_styles' );
 function prinex_child_enqueue_styles() {
