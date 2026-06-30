@@ -125,6 +125,30 @@
         "filename": "prinex-cennik-wc.php",
         "scope": "global",
         "active": true,
-        "description": "Filtry WooCommerce: woocommerce_available_variation (display_price z prinex_sale_net) + woocommerce_before_calculate_totals (cena koszyka/kasy). NIE dotyka variable.php, #13, #14. Wymaga #23."
+        "description": "v2 (Etap B): dodane klucze prinex_net/gross/html/unit_*_html/missing_html/naklad_qty dla snippet #26 (JS live update). Filtry WooCommerce: woocommerce_available_variation + woocommerce_before_calculate_totals. NIE dotyka variable.php, #13, #14."
+    },
+    {
+        "id": "26",
+        "name": "PRINEX — Żywa aktualizacja cen na stronie produktu (#26, Etap B)",
+        "filename": "prinex-live-cena-js.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "JS found_variation listener: aktualizuje sum-card (cena/szt + suma netto/brutto), pasek dostawy (.fill/.truck), wiersze nakladu (#qtyList li .nak-price + .nak-disc). ZERO nowych wezlow DOM, ZERO CSS. Dane z data-product_variations (snippet #25 v2)."
+    },
+    {
+        "id": "27",
+        "name": "PRINEX — Custom format/nakład: live AJAX preview (#27, Etap C1)",
+        "filename": "prinex-custom-ajax-preview.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "JS: custom format/naklad z podgladem ceny przez AJAX (prinex_custom_price). Osadzanie custom (v6.1): custom zostaje widoczny po przelaczeniu na swatch, jeden .selected na os. NIE dotyka variable.php/#13/#14."
+    },
+    {
+        "id": "28",
+        "name": "PRINEX — Dostawa i płatność: checkout CSS/JS + WC (#28)",
+        "filename": "prinex-checkout-dostawa-platnosc.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Override klasycznego checkoutu (form-checkout/form-billing/review-order/payment.php). Stepper, Dane odbiorcy (zwijane + Osoba/Firma + NIP, walidacja firmy), Twoje naklejki (status plikow = prinex_upload_files jak koszyk), bramki w lewej kolumnie (remove_action payment z order_review), terms->#place_order poza fragmentem AJAX. Meta HPOS-safe (_billing_customer_type/_billing_nip) przez woocommerce_checkout_create_order. Scope is_checkout()."
     }
 ]

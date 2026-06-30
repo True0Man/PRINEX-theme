@@ -156,10 +156,21 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 23 | Silnik cennika (#23) | global | ✅ | prinex_sale_net(), prinex_sale_rate(), prinex_rozmiar_to_dims() — dane w prinex_cennik (JSON) |
 | 24 | Panel admina Cennik (#24) | admin | ✅ | Podstrona wp-admin Cennik PRINEX; meta box: folia/rodzaj/OPTYMALNY |
 | 25 | WC filtry cennika (#25) | global | ✅ | woocommerce_available_variation + woocommerce_before_calculate_totals z prinex_sale_net() |
+| 26 | Żywa aktualizacja cen na stronie produktu (Etap B) | front-end | ✅ | JS found_variation: sum-card, pasek dostawy, wiersze nakładu; zero nowych węzłów/CSS |
+| 27 | Custom format/nakład: live AJAX preview (Etap C1) | front-end | ✅ | Custom format/nakład + podgląd ceny (AJAX prinex_custom_price); osadzanie v6.1 |
+| 28 | Dostawa i płatność: checkout CSS/JS + WC | front-end | ✅ | Override klasycznego checkoutu (4 szablony); stepper, Dane odbiorcy (Osoba/Firma+NIP), Twoje naklejki (status plików jak koszyk), bramki w lewej kol., terms→#place_order; meta HPOS-safe; is_checkout() |
 
 ---
 
 ## 6. Problemy — rozwiązane i otwarte
+
+### ✅ Checkout „Dostawa i płatność" — przeprojektowany (2026-06-30)
+- **Konwersja:** strona `/zamowienie/` (ID 11) z blokowego checkoutu (`wp:woocommerce/checkout`) na **klasyczny** `[woocommerce_checkout]` — spójność z klasycznym koszykiem, kontrola PHP/override. Backup zawartości strony w `~/backups/prinex-page11-*`.
+- **Szablony (child theme `woocommerce/checkout/`):** `form-checkout.php` (layout 2-kol + stepper), `form-billing.php` (Dane odbiorcy: zwijane + Osoba/Firma + NIP), `review-order.php` (podsumowanie; realny `shipping_method[]` ukryty w CSS → zawsze POST), `payment.php` (same bramki).
+- **Snippet #28** (`is_checkout()`): CSS/JS + `remove_action('woocommerce_checkout_order_review','woocommerce_checkout_payment',20)` (bramki w lewej kolumnie, AJAX odświeża `.woocommerce-checkout-payment` w miejscu); `#place_order`+terms w prawym podsumowaniu POZA fragmentem AJAX; pola `billing_nip`/`billing_customer_type` + walidacja firmy; meta **HPOS-safe** przez `woocommerce_checkout_create_order` (`update_post_meta` nie działa przy HPOS).
+- **Status plików w „Twoje naklejki"** = ten sam mechanizm co koszyk (`$cart_item['prinex_upload_files']` / `prinex_upload_projekt`).
+- **Weryfikacja:** złożone realne zamówienia testowe (bacs, osoba + firma) przez `process_checkout()` — status on-hold, free shipping, VAT 23%, meta zapisane; parytet wizualny vs `06-zamowienie/mockup-2.png` (Edge/Playwright). Jedyna realna bramka: **bacs** (PayU/Przelewy24/BLIK = placeholdery, nieinstalowane).
+- **NIETKNIĘTE:** variable.php, snippety #13/#14 (strona produktu), #21 (koszyk).
 
 ### ✅ Snippet #10 — upload SVG (NAPRAWIONY)
 - **Był:** kod w bazie uszkodzony (każda zmienna jako goły `\`) + scope `front-end`, podczas gdy `upload_mimes` działa w wp-admin → upload SVG nie działał.
