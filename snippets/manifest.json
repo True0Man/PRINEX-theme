@@ -149,6 +149,6 @@
         "filename": "prinex-checkout-dostawa-platnosc.php",
         "scope": "front-end",
         "active": true,
-        "description": "Override klasycznego checkoutu (form-checkout/form-billing/review-order/payment.php). Stepper, Dane odbiorcy (zwijane + Osoba/Firma + NIP, walidacja firmy), Twoje naklejki (status plikow = prinex_upload_files jak koszyk), bramki w lewej kolumnie (remove_action payment z order_review), terms->#place_order poza fragmentem AJAX. Meta HPOS-safe (_billing_customer_type/_billing_nip) przez woocommerce_checkout_create_order. Scope is_checkout()."
+        "description": "Override klasycznego checkoutu (form-checkout/form-billing/review-order/payment.php). Stepper, Dane odbiorcy (zwijane + Osoba/Firma + NIP, walidacja firmy), Twoje naklejki (status plikow = prinex_upload_files jak koszyk), bramki w lewej kolumnie (remove_action payment z order_review), terms->#place_order poza fragmentem AJAX. Meta HPOS-safe (_billing_customer_type/_billing_nip) przez woocommerce_checkout_create_order. Scope is_checkout(). + ekran Zamówienie otrzymane (thankyou.php): branded order-received, status plików per pozycja, dane do przelewu (placeholder TODO), remove_action order_details_table."
     }
 ]

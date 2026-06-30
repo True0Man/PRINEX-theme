@@ -21,6 +21,8 @@ add_action( 'init', function () {
 	// Czyste UI wg mockupu — bez bannerów logowania i kuponu na górze checkoutu.
 	remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10 );
 	remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+	// Ekran "Zamówienie otrzymane": własne sekcje w thankyou.php → bez domyślnej tabeli zamówienia.
+	remove_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
 } );
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -90,8 +92,8 @@ add_action( 'woocommerce_admin_order_data_after_billing_address', function ( $or
  * 3) CSS — scoped body.woocommerce-checkout. Wzorzec wizualny = koszyk (#21).
  * ──────────────────────────────────────────────────────────────────────── */
 add_action( 'wp_head', function () {
-	if ( ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
-		return;
+	if ( ! is_checkout() ) {
+		return; // emituje też na order-received (współdzielone komponenty + sekcja thankyou niżej)
 	}
 	?>
 <style>
@@ -290,6 +292,50 @@ body.woocommerce-checkout .woocommerce-checkout .blockUI.blockOverlay{border-rad
   body.woocommerce-checkout .pxc-step{font-size:0;gap:0;}
   body.woocommerce-checkout .pxc-step .pxc-dot{font-size:13px;}
 }
+
+/* ── Ekran "Zamówienie otrzymane" (thankyou) ── */
+body.woocommerce-order-received .woocommerce-order{margin:0;}
+body.woocommerce-order-received .pxc-ty-hero{text-align:center;margin:30px auto 34px;max-width:680px;}
+body.woocommerce-order-received .pxc-ty-check{width:72px;height:72px;border-radius:50%;background:var(--pxc-green);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 24px rgba(120,184,51,.32);}
+body.woocommerce-order-received .pxc-ty-check svg{width:36px;height:36px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+body.woocommerce-order-received .pxc-ty-hero h1{font-size:34px;font-weight:700;color:var(--pxc-navy);line-height:1.15;margin:0;}
+body.woocommerce-order-received .pxc-ty-sub{font-size:16px;color:#5a6570;margin:12px 0 0;}
+body.woocommerce-order-received .pxc-ty-sub strong{color:var(--pxc-navy);}
+body.woocommerce-order-received .pxc-ty-mail{font-size:14px;color:var(--pxc-muted);margin:6px 0 0;}
+body.woocommerce-order-received .pxc-ty-mail strong{color:#5a6570;}
+
+body.woocommerce-order-received .pxc-timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;}
+body.woocommerce-order-received .pxc-tl-step{display:flex;gap:14px;align-items:flex-start;position:relative;padding:0 0 22px;}
+body.woocommerce-order-received .pxc-tl-step:last-child{padding-bottom:0;}
+body.woocommerce-order-received .pxc-tl-step::before{content:"";position:absolute;left:13px;top:28px;bottom:-2px;width:2px;background:var(--pxc-line);}
+body.woocommerce-order-received .pxc-tl-step:last-child::before{display:none;}
+body.woocommerce-order-received .pxc-tl-num{flex:none;width:28px;height:28px;border-radius:50%;background:#eef1f3;color:var(--pxc-navy);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;}
+body.woocommerce-order-received .pxc-tl-step div{display:flex;flex-direction:column;gap:2px;padding-top:3px;}
+body.woocommerce-order-received .pxc-tl-step strong{font-size:15px;font-weight:700;color:var(--pxc-navy);}
+body.woocommerce-order-received .pxc-tl-step span{font-size:14px;color:#5a6570;line-height:1.45;}
+
+body.woocommerce-order-received .pxc-ty-files-note{display:flex;gap:10px;align-items:flex-start;margin-top:20px;padding:14px 16px;background:#fff7ec;border:1px solid #f3d9ad;border-radius:10px;font-size:14px;color:#7a5a1e;line-height:1.45;}
+body.woocommerce-order-received .pxc-ty-files-note svg{flex:none;width:18px;height:18px;stroke:var(--pxc-amber);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px;}
+body.woocommerce-order-received .pxc-ty-files-note strong{color:#5a3c0e;}
+
+body.woocommerce-order-received .pxc-ty-cta-row{display:flex;align-items:center;gap:24px;margin-top:6px;}
+body.woocommerce-order-received .pxc-ty-link-acc{font-size:15px;font-weight:600;color:var(--pxc-navy);text-decoration:underline;}
+body.woocommerce-order-received .pxc-ty-link-acc:hover{color:var(--pxc-green-dark);}
+
+body.woocommerce-order-received .pxc-ty-pay{display:flex;justify-content:space-between;gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid var(--pxc-line);font-size:15px;}
+body.woocommerce-order-received .pxc-ty-pay-k{color:#5a6570;}
+body.woocommerce-order-received .pxc-ty-pay-v{color:var(--pxc-navy);font-weight:600;}
+
+body.woocommerce-order-received .pxc-ty-bank{margin-top:18px;padding:16px 18px;background:#f4f7fb;border:1px solid #dbe6f2;border-radius:10px;}
+body.woocommerce-order-received .pxc-ty-bank-title{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--pxc-navy);margin-bottom:12px;}
+body.woocommerce-order-received .pxc-ty-bank-row{display:flex;justify-content:space-between;gap:14px;font-size:14px;padding:5px 0;}
+body.woocommerce-order-received .pxc-ty-bank-row span{color:#5a6570;}
+body.woocommerce-order-received .pxc-ty-bank-row strong{color:var(--pxc-navy);font-weight:600;text-align:right;}
+body.woocommerce-order-received .pxc-ty-todo{color:var(--pxc-amber);font-weight:700;}
+
+body.woocommerce-order-received .pxc-ty-failed,
+body.woocommerce-order-received .pxc-ty-fallback{max-width:680px;margin:40px auto;text-align:center;}
+body.woocommerce-order-received .pxc-ty-failed .pxc-btn-cta{margin-top:18px;}
 </style>
 	<?php
 } );

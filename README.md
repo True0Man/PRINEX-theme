@@ -158,7 +158,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 25 | WC filtry cennika (#25) | global | ✅ | woocommerce_available_variation + woocommerce_before_calculate_totals z prinex_sale_net() |
 | 26 | Żywa aktualizacja cen na stronie produktu (Etap B) | front-end | ✅ | JS found_variation: sum-card, pasek dostawy, wiersze nakładu; zero nowych węzłów/CSS |
 | 27 | Custom format/nakład: live AJAX preview (Etap C1) | front-end | ✅ | Custom format/nakład + podgląd ceny (AJAX prinex_custom_price); osadzanie v6.1 |
-| 28 | Dostawa i płatność: checkout CSS/JS + WC | front-end | ✅ | Override klasycznego checkoutu (4 szablony); stepper, Dane odbiorcy (Osoba/Firma+NIP), Twoje naklejki (status plików jak koszyk), bramki w lewej kol., terms→#place_order; meta HPOS-safe; is_checkout() |
+| 28 | Dostawa i płatność + Zamówienie otrzymane | front-end | ✅ | Override checkoutu (5 szablonów: form-checkout/form-billing/review-order/payment/thankyou); stepper, Dane odbiorcy (Osoba/Firma+NIP), status plików jak koszyk, bramki w lewej kol., terms→#place_order, meta HPOS-safe; ekran order-received brandowany; is_checkout() |
 
 ---
 
