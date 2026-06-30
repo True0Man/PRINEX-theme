@@ -159,10 +159,20 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 26 | Żywa aktualizacja cen na stronie produktu (Etap B) | front-end | ✅ | JS found_variation: sum-card, pasek dostawy, wiersze nakładu; zero nowych węzłów/CSS |
 | 27 | Custom format/nakład: live AJAX preview (Etap C1) | front-end | ✅ | Custom format/nakład + podgląd ceny (AJAX prinex_custom_price); osadzanie v6.1 |
 | 28 | Dostawa i płatność + Zamówienie otrzymane | front-end | ✅ | Override checkoutu (5 szablonów: form-checkout/form-billing/review-order/payment/thankyou); stepper, Dane odbiorcy (Osoba/Firma+NIP), status plików jak koszyk, bramki w lewej kol., terms→#place_order, meta HPOS-safe; ekran order-received brandowany; is_checkout() |
+| 29 | Panel klienta /moje-konto/ | front-end | ✅ | Override myaccount/* (6 ekranow: login/pulpit/zamowienia/widok/adresy/dane konta); menu relabel+ukryj Pobrania; status chip; order-again; reuse status plikow + dane do przelewu. Warstwa 1 |
 
 ---
 
 ## 6. Problemy — rozwiązane i otwarte
+
+### ✅ Panel klienta /moje-konto/ — Warstwa 1 (2026-06-30)
+- 10 override'ow `woocommerce/myaccount/` (my-account wrapper + navigation + form-login + form-lost-password + dashboard + orders + view-order + form-edit-account + form-edit-address + my-address) + snippet #29 (`is_account_page()`).
+- Menu konta: relabel (Pulpit/Zamowienia/Dane do wysylki/Dane konta/Wyloguj) + ukryte Pobrania (filtr woocommerce_account_menu_items).
+- Reuse z order-received: status plikow per pozycja (`_prinex_upload_files`), dane do przelewu (`woocommerce_bacs_accounts`).
+- Fix: neutralizacja domyslnego floatu WC 25%/75% na nav/content (psul grid). view-order: $tax_name (nie $tax) — kolizja z VAT.
+- Model C: logowanie glowne, rejestracja subtelna (taby). Social FB/Google = wizualne (OAuth = Warstwa 2a).
+- WARSTWA 2 (osobno, decyzje Macieja): social login (klucze), GUS po NIP (klucz), wiele adresow (custom CRUD na meta — wstepna rekomendacja), faktura na inne dane, Osoba/Firma w adresie (reuse #28).
+- NIETKNIETE: variable.php, #13/#14, #21, #28.
 
 ### ✅ Checkout „Dostawa i płatność" — przeprojektowany (2026-06-30)
 - **Konwersja:** strona `/zamowienie/` (ID 11) z blokowego checkoutu (`wp:woocommerce/checkout`) na **klasyczny** `[woocommerce_checkout]` — spójność z klasycznym koszykiem, kontrola PHP/override. Backup zawartości strony w `~/backups/prinex-page11-*`.

@@ -150,5 +150,13 @@
         "scope": "front-end",
         "active": true,
         "description": "Override klasycznego checkoutu (form-checkout/form-billing/review-order/payment.php). Stepper, Dane odbiorcy (zwijane + Osoba/Firma + NIP, walidacja firmy), Twoje naklejki (status plikow = prinex_upload_files jak koszyk), bramki w lewej kolumnie (remove_action payment z order_review), terms->#place_order poza fragmentem AJAX. Meta HPOS-safe (_billing_customer_type/_billing_nip) przez woocommerce_checkout_create_order. Scope is_checkout(). + ekran Zamówienie otrzymane (thankyou.php): branded order-received, status plików per pozycja, dane do przelewu (placeholder TODO), remove_action order_details_table."
+    },
+    {
+        "id": "29",
+        "name": "PRINEX — Panel klienta /moje-konto/ (#29)",
+        "filename": "prinex-konto-myaccount.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Override myaccount/* (login, dashboard, orders, view-order, edit-account/address, navigation) + CSS systemu PRINEX (is_account_page) + menu relabel/ukryj Pobrania + status chip + order-again. Reuse status plikow/dane do przelewu jak order-received. Warstwa 1 (wyglad)."
     }
 ]
