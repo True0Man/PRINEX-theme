@@ -52,10 +52,15 @@ $ship   = (float) $order->get_shipping_total();
 $brutto = (float) $order->get_total();
 
 $is_bacs = ( 'bacs' === $order->get_payment_method() );
-$bacs    = get_option( 'woocommerce_bacs_settings', [] );
-$acc_name = $bacs['account_name'] ?? '';
-$acc_disp = ! empty( $bacs['iban'] ) ? $bacs['iban'] : ( $bacs['account_number'] ?? '' );
-$bank_nm  = $bacs['bank_name'] ?? '';
+// Kanoniczne źródło WC = woocommerce_bacs_accounts (to samo, co maile WC); legacy settings jako fallback.
+$bacs_accounts = (array) get_option( 'woocommerce_bacs_accounts', [] );
+$acc0          = ! empty( $bacs_accounts ) ? (array) $bacs_accounts[0] : [];
+$bacs_legacy   = (array) get_option( 'woocommerce_bacs_settings', [] );
+$acc_name = $acc0['account_name'] ?? ( $bacs_legacy['account_name'] ?? '' );
+$acc_disp = ! empty( $acc0['account_number'] )
+	? $acc0['account_number']
+	: ( ! empty( $acc0['iban'] ) ? $acc0['iban'] : ( $bacs_legacy['iban'] ?? ( $bacs_legacy['account_number'] ?? '' ) ) );
+$bank_nm  = $acc0['bank_name'] ?? ( $bacs_legacy['bank_name'] ?? '' );
 
 $ctype = $order->get_meta( '_billing_customer_type' );
 $nip   = $order->get_meta( '_billing_nip' );
