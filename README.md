@@ -34,6 +34,7 @@ Claude Design  ──►  Claude Code  ──►  serwer (SSH)  ──►  GitHu
 | **Szablon kategorii** | `woocommerce/taxonomy-product_cat-naklejki-3d-premium.php` | plik w repo |
 | **Font Figtree** | Code Snippet #9 | baza WP |
 | **Logo** | `assets/prinex-logo.svg` | plik w repo |
+| **CMP / baner cookies (RODO)** | Complianz GDPR (wtyczka) + snippet #35 (branding) + link stopki `#cmplz-manage-consent` (Element 162) | konfiguracja kreatora: **baza WP + REST**; CSS brandingu: `wp_snippets` (#35) |
 
 > **Ważne:** dla Code Snippets **źródłem prawdy jest baza WP**, nie pliki.
 > Pliki w `snippets/` to mirror do review i historii. Edycja pliku **nie zmienia
@@ -164,10 +165,29 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 31 | Checkout: picker zapisanego adresu (2c-int) | front-end | ✅ | Dodatek przez hook: wybor zapisanego adresu → prefill pol billing; rdzen #28 bez zmian; gosc nie widzi |
 | 32 | Faktura na inne dane (2d) | global | ✅ | Konto: sekcja+AJAX (_prinex_invoice_data). Checkout: dodatek przez hook, zapis meta zamowienia; walidacja/zapis tylko gdy zaznaczone (parytet #28); nonce/per-user/checksum |
 | 33 | Polityka prywatności (CSS/JS treści) | front-end | ✅ | is_page polityki (body.pp-scope): layout spis-treści/sekcje/notki + JS TOC. Treść = post_content strony 3 (slug polityka-prywatnosci), bez własnej ramy |
+| 34 | Regulamin (CSS/JS treści) | front-end | ✅ | is_page('regulamin') (body.pp-scope) — klon #33: listy numerowane §§ + zagnieżdżone, blok Załącznika, scroll-spy v8 (pin po kliku, dynamiczny offset). Treść = post_content strony /regulamin/ (ID 210) |
+| 35 | Complianz — branding banera cookies | front-end | ✅ | CSS banera Complianz w tokenach PRINEX (`wp_head`, site-wide): box biały / akcent granat #0B457D, accept #78B833 / hover #62992A, tekst #333, font Figtree; override `.cmplz-*` `!important`, bez edycji rdzenia. `brandingCss:true` w `<head>` |
 
 ---
 
 ## 6. Problemy — rozwiązane i otwarte
+
+### ✅ Complianz — baner cookies (CMP), tryb startowy „tylko niezbędne" (2026-07-01)
+- **Wtyczka:** Complianz GDPR/CCPA (free) **v7.5.0**, aktywna. Bez cross-sell (Terms/Security pominięte).
+- **Tryb startowy:** aktywna tylko kategoria **Niezbędne**; **Analityczne i Marketingowe istnieją, ale PUSTE** — na stronie brak GA4/GTM/Ads/Meta (zweryfikowane: 0 takich skryptów w źródle).
+- **Branding:** snippet **#35** — tokeny PRINEX na baner (Figtree, granat #0B457D / zieleń #78B833, accept hover #62992A, tekst #333). Ładowany w `<head>` site-wide; renderuje się po aktywacji banera.
+- **Panel wycofania zgody:** link „Ustawienia cookies" → `#cmplz-manage-consent` w stopce (Element 162, dolny pasek obok Polityka/Regulamin). *Uwaga: edytowany przez `update_post_meta` — zadziałało (lint czysty + link renderuje), bo treść stopki nie ma literalnych backslashy; docelowo obowiązuje procedura `FROM_BASE64()` z §2.*
+- **Skan cookiedatabase.org:** aktywny (token Active), konto: maciej.mizgalski@prinex.com.pl.
+- **Dokumenty:** baner ma linkować do istniejącej **/polityka-prywatnosci/**; auto-polityka cookies Complianz **wyłączona** — ręczna Polityka prywatności pozostaje dokumentem głównym.
+- **⏳ Do dokończenia przez Macieja** (kreator = GUI; konfiguracja serializowana w bazie/REST, świadomie NIE forsowana headless): wp-admin → Complianz → Wizard → region **UE/Polska**, Statystyki=**Nie**, Marketing=**Nie**, Osadzone=**Nie**, Formularze=**Tak** → Zakończ (generuje i aktywuje baner). Wykryte przez skan do decyzji: `google-fonts` (Figtree z Google CDN), social `linkedin`/`instagram` (najpewniej linki → Embeds=Nie).
+- **Dług / do odtworzenia ręcznie (poza repo):** konfiguracja kreatora Complianz żyje w **bazie/REST (serializowana)**, NIE w snippetach. Przy odtwarzaniu sklepu z kodu snippet #35 wróci z repo, ale **odpowiedzi kreatora i aktywacja banera — nie**; trzeba przejść kreator ponownie (region UE, statystyki/marketing=Nie, formularze=Tak).
+
+> **🚩 FLAGA — PRZY STARCIE KAMPANII REKLAMOWYCH / WPIĘCIU GA4** (osobne, świadome zadanie — NIE robić przy okazji czegoś innego):
+> - upgrade Complianz do **Premium** (Personal ~59 €/rok, 1 strona),
+> - włączyć **Google Consent Mode v2** + **Records of Consent**,
+> - aktywować puste kategorie **Analityczne / Marketingowe**,
+> - wpiąć GA4 / Google Ads / piksel Meta **za zgodą** (przez GTM lub integracje Complianz),
+> - zaktualizować sekcje analityki/marketingu w **Polityce prywatności** do stanu „tracking żywy".
 
 ### ✅ Panel klienta /moje-konto/ — Warstwa 1 (2026-06-30)
 - 10 override'ow `woocommerce/myaccount/` (my-account wrapper + navigation + form-login + form-lost-password + dashboard + orders + view-order + form-edit-account + form-edit-address + my-address) + snippet #29 (`is_account_page()`).
@@ -212,6 +232,12 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 ### 🧹 Martwe snippety
 - Snippety 1–4 (przykłady z wtyczki) i 6, 8 (odłożone) zaśmiecają listę.
 - **Status:** do uporządkowania (usunąć lub jasno opisać).
+
+### 🧹 Backlog — niepilne
+- **`manifest.json` — dryf:** brak wpisów **#14–#22** (istnieją w bazie WP i w inwentarzu §5, ale nie w manifeście). Docelowo: regeneracja manifestu z bazy (źródło prawdy). *(#34, #35 dopisane 2026-07-01.)*
+- **Self-host fontu Figtree:** teraz third-party z Google CDN — wydajność + czystość cookies (Complianz wykrywa `google-fonts`).
+- **LinkedIn/Instagram w stopce:** zweryfikować linki vs osadzenia; jeśli tylko linki → Complianz Embeds = Nie.
+- **Adres e-mail poświadczeń:** rozważyć firmowy (info@/biuro@) zamiast osobistego dla powiadomień technicznych/Complianz. *(niepilne)*
 
 ---
 
@@ -262,6 +288,12 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 - [ ] SEO (meta, structured data)
 - [ ] Wydajność (Core Web Vitals)
 - [ ] Przegląd mobilny całości
+
+### 🚩 Przy starcie kampanii reklamowych (osobne zadanie — patrz flaga w §6)
+- [ ] Complianz **Premium** + **Consent Mode v2** + **Records of Consent**
+- [ ] Aktywacja pustych kategorii **Analityczne / Marketingowe**
+- [ ] Wpięcie GA4 / Google Ads / piksel Meta **za zgodą** (GTM lub integracje Complianz)
+- [ ] Aktualizacja sekcji analityki/marketingu w Polityce prywatności → „tracking żywy"
 
 ---
 

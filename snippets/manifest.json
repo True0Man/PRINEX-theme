@@ -190,5 +190,21 @@
         "scope": "front-end",
         "active": true,
         "description": "CSS/JS treści prawnej (is_page polityki, body.pp-scope): layout spis-tresci|tresc, sekcje, notki, tokeny PRINEX + JS spisu tresci (collapse mobile + scroll-spy). Tresc w post_content strony 3 (bez wlasnej ramy - header/footer/nav pliku odrzucone)."
+    },
+    {
+        "id": "34",
+        "name": "PRINEX — Regulamin (#34)",
+        "filename": "prinex-regulamin.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "CSS/JS tresci Regulaminu (is_page('regulamin'), body.pp-scope) — klon architektury #33: layout spis|tresc, listy numerowane paragrafow + zagniezdzone, blok Zalacznika, scroll-spy v8 (pin po kliku, dynamiczny offset). Tresc w post_content strony /regulamin/ (ID 210)."
+    },
+    {
+        "id": "35",
+        "name": "PRINEX — Complianz baner: branding (#35)",
+        "filename": "prinex-complianz-branding.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "CSS banera Complianz w tokenach PRINEX (wp_head, site-wide): box bialy / akcent granat #0B457D, przycisk accept #78B833 (hover #62992A), tekst #333, font Figtree. Override klas .cmplz-* przez !important, bez edycji rdzenia wtyczki."
     }
 ]
