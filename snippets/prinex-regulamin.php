@@ -53,8 +53,8 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .toc-list{list-style:none;margin:0;padding:0;border-left:1px solid #d7dde2;}
 .pp-scope .toc-list li{position:relative;margin:0;}
 .pp-scope .toc-list a{display:flex;align-items:baseline;padding:9px 12px 9px 20px;margin-left:-1px;border-radius:0 8px 8px 0;font-size:14.5px;font-weight:400;line-height:1.4;color:#7a848d;border-left:2px solid transparent;text-decoration:none;transition:color .16s,border-color .16s,background .16s,transform .16s;}
-/* numer § w kolumnie stałej szerokości (mieści „§12"), wyśrodkowany → tekst od tej samej pozycji */
-.pp-scope .toc-list a .n{flex:0 0 30px;text-align:center;font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
+/* numer w kolumnie stałej szerokości (jak Polityka), wyśrodkowany → tekst od tej samej pozycji */
+.pp-scope .toc-list a .n{flex:0 0 22px;text-align:center;font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
 .pp-scope .toc-list a:hover{color:#62992A;background:rgba(120,184,51,.1);border-left-color:#78B833;transform:translateX(2px);}
 .pp-scope .toc-list a:hover .n{color:#62992A;}
 .pp-scope .toc-list a.active{color:#0B457D;font-weight:700;border-left-color:#78B833;}
@@ -66,7 +66,7 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .pp-section{scroll-margin-top:var(--pp-offset);padding-bottom:44px;margin-bottom:44px;border-bottom:1px solid #e1e6ea;}
 .pp-scope .pp-section:last-child{border-bottom:none;margin-bottom:0;}
 .pp-scope .sec-head{display:flex;align-items:center;gap:15px;margin-bottom:18px;}
-.pp-scope .pp-section .sec-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#78B833;color:#fff;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+.pp-scope .pp-section .sec-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#78B833;color:#fff;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;}
 .pp-scope .pp-section h2{font-size:25px;font-weight:700;color:#0B457D;line-height:1.2;margin:0;}
 .pp-scope .pp-section p{color:#333;font-size:16.5px;line-height:1.72;margin:0 0 15px;}
 .pp-scope .pp-section p:last-child{margin-bottom:0;}
