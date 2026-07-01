@@ -186,27 +186,39 @@ add_action( 'wp_footer', function () {
       if(head){ head.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.toggle('open'); } }); }
     }
     var sections=[].slice.call(document.querySelectorAll('.pp-scope .pp-section'));
-    // OFFSET = TA SAMA wartość co scroll-margin-top sekcji i sticky nagłówka (CSS var --pp-offset).
-    // Dzięki temu linia detekcji spy pokrywa się z miejscem, w którym ląduje klik.
+    // OFFSET = baza z CSS var --pp-offset (= scroll-margin-top klika i sticky nagłówek, 120).
     var scopeEl=document.querySelector('.pp-scope')||document.body;
     var OFFSET=parseInt(getComputedStyle(scopeEl).getPropertyValue('--pp-offset'),10)||120;
+    // SPY_BUFFER = JEDYNA różnica: linia detekcji spy leży PONIŻEJ linii lądowania (120+30=150),
+    // żeby sekcja zatrzymana na 120px (nawet z ułamkowym błędem lądowania) była pewnie aktywna,
+    // a nie „na styk" (co powodowało spadek na poprzednią pod koniec hamowania smooth-scrolla).
+    var SPY_BUFFER=30;
     // spis treści: podświetlanie aktywnej sekcji
     if(sections.length&&links.length){
-      var onScroll=function(){
-        // aktywna = OSTATNIA sekcja, której górna krawędź minęła linię nagłówka (OFFSET).
-        // Czysta funkcja pozycji scrolla → symetryczna w dół i w górę, bez migotania na styku.
-        var line=OFFSET+2; // +2px bufor antymigotanie (subpiksele)
+      var setActive=function(){
+        var line=OFFSET+SPY_BUFFER;
         var active=sections[0];
         for(var i=0;i<sections.length;i++){
           if(sections[i].getBoundingClientRect().top<=line){ active=sections[i]; }
           else { break; } // sekcje w kolejności — pierwsza poniżej linii kończy pętlę
         }
+        // koniec strony (nie da się dociągnąć góry ostatniej sekcji do progu) → ostatnia sekcja
+        if((window.innerHeight+window.pageYOffset)>=(document.documentElement.scrollHeight-2)){
+          active=sections[sections.length-1];
+        }
         var id=active.id;
         links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); });
       };
-      window.addEventListener('scroll', onScroll, {passive:true});
-      window.addEventListener('resize', onScroll, {passive:true});
-      onScroll();
+      // throttling per-scroll (rAF) — płynnie w trakcie animacji…
+      var raf=null;
+      var onScroll=function(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=null; setActive(); }); };
+      // …ORAZ przeliczenie PO ZATRZYMANIU (finalny stan na spoczynku, nie na klatce hamowania):
+      var settleT=null;
+      var onSettle=function(){ if(settleT) clearTimeout(settleT); settleT=setTimeout(setActive,120); };
+      window.addEventListener('scroll', function(){ onScroll(); onSettle(); }, {passive:true});
+      if('onscrollend' in window){ window.addEventListener('scrollend', setActive, {passive:true}); }
+      window.addEventListener('resize', setActive, {passive:true});
+      setActive();
     }
     // spis treści: PŁYNNE przewijanie do kotwicy (zamiast twardego skoku)
     links.forEach(function(a){
