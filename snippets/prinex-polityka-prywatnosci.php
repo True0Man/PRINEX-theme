@@ -69,7 +69,9 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 /* flex: numer = osobna kolumna (stała), tytuł zawija się we własnej → druga linia
    wyrównana do tekstu tytułu, nie do numeru (hanging indent). */
 .pp-scope .toc-list a{display:flex;align-items:baseline;padding:9px 12px 9px 20px;margin-left:-1px;border-radius:0 8px 8px 0;font-size:14.5px;font-weight:400;line-height:1.4;color:#7a848d;border-left:2px solid transparent;text-decoration:none;transition:color .16s,border-color .16s,background .16s,transform .16s;}
-.pp-scope .toc-list a .n{flex:0 0 auto;font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
+/* numer = kolumna o STAŁEJ szerokości (tabular-nums = równe cyfry), wyśrodkowany;
+   dzięki temu tekst tytułu zaczyna się w tym samym miejscu dla 1- i 2-cyfrowych (p9 = p10). */
+.pp-scope .toc-list a .n{flex:0 0 22px;text-align:center;font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
 .pp-scope .toc-list a:hover{color:#62992A;background:rgba(120,184,51,.1);border-left-color:#78B833;transform:translateX(2px);}
 .pp-scope .toc-list a:hover .n{color:#62992A;}
 .pp-scope .toc-list a.active{color:#0B457D;font-weight:700;border-left-color:#78B833;}
