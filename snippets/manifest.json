@@ -174,5 +174,13 @@
         "scope": "front-end",
         "active": true,
         "description": "Dodatek OBOK #28 (nie zmienia rdzenia): hook woocommerce_checkout_before_customer_details renderuje picker zapisanych adresow (prinex_get_addresses), JS prefilluje inputy billing + przelacznik Osoba/Firma. Gosc nie widzi. process_checkout #28 bez zmian (regresja osoba/firma/zly NIP identyczna)."
+    },
+    {
+        "id": "32",
+        "name": "PRINEX — Faktura na inne dane (#32, 2d)",
+        "filename": "prinex-faktura-inne-dane.php",
+        "scope": "global",
+        "active": true,
+        "description": "Konto: sekcja Faktura + AJAX (user_meta _prinex_invoice_data, nonce/per-user/checksum). Checkout: DODATEK przez hook (checkbox+pola), zapis do meta zamowienia _prinex_invoice; walidacja+zapis TYLKO gdy zaznaczone (parytet #28 bez faktury). Wlasne klasy toggle (.pxc-inv-pill) odciete od #28/#30."
     }
 ]
