@@ -205,14 +205,16 @@ add_action( 'wp_footer', function () {
     [0,400,1200].forEach(function(d){ setTimeout(applyOffset,d); });
     function currentOffset(){ return parseInt(getComputedStyle(scopeEl).getPropertyValue('--pp-offset'),10)||BASE; }
 
-    if(toc){ try{ toc.setAttribute('data-ppspy','v7'); }catch(e){} } // znacznik wersji (weryfikacja cache)
+    if(toc){ try{ toc.setAttribute('data-ppspy','v8'); }catch(e){} } // znacznik wersji (weryfikacja cache)
 
-    // spySuppressed: podczas smooth-scrolla WYWOŁANEGO KLIKIEM spis-treści spy jest zawieszony,
-    // żeby nie nadpisywać docelowej sekcji sekcją przejściową (wyścig klik vs własna animacja).
-    var spySuppressed=false, releaseT=null;
+    // pinned: po kliku pozycji spisu podświetlenie jest PRZYKLEJONE do klikanej sekcji, a spy
+    // NIE przelicza (ani w trakcie animacji, ani na zatrzymaniu) — dopóki użytkownik SAM nie
+    // przewinie (wheel/touch/klawisz). Eliminuje „przeskok o jeden wyżej na zatrzymaniu",
+    // niezależnie od geometrii ramy: programowy scroll klika niczego nie nadpisuje.
+    var pinned=false;
     function highlight(id){ links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); }); }
     function setActive(){
-      if(spySuppressed) return;                 // nie ruszaj podświetlenia w trakcie animacji klika
+      if(pinned) return;                        // po kliku: nie przeliczaj, trzymaj klikaną
       if(!sections.length||!links.length) return;
       var line=currentOffset()+SPY_BUFFER;      // próg = ta sama dynamiczna wartość co lądowanie + bufor
       var active=sections[0];
@@ -225,7 +227,7 @@ add_action( 'wp_footer', function () {
       }
       highlight(active.id);
     }
-    function releaseSpy(){ if(releaseT){ clearTimeout(releaseT); releaseT=null; } spySuppressed=false; setActive(); }
+    function unpin(){ if(pinned){ pinned=false; setActive(); } } // realny scroll usera → wznów spy
 
     if(sections.length&&links.length){
       var raf=null;
@@ -233,13 +235,17 @@ add_action( 'wp_footer', function () {
       var settleT=null;
       var onSettle=function(){ if(settleT) clearTimeout(settleT); settleT=setTimeout(setActive,120); };
       window.addEventListener('scroll', function(){ onScroll(); onSettle(); }, {passive:true});
-      // scrollend: jeśli był klik (spy zawieszony) → WZNÓW spy; w innym razie zwykłe przeliczenie.
-      if('onscrollend' in window){ window.addEventListener('scrollend', function(){ if(spySuppressed) releaseSpy(); else setActive(); }, {passive:true}); }
+      if('onscrollend' in window){ window.addEventListener('scrollend', setActive, {passive:true}); }
       window.addEventListener('resize', function(){ applyOffset(); setActive(); }, {passive:true});
+      // WEJŚCIE UŻYTKOWNIKA w scroll (nie programowy klik) → odklej podświetlenie, wznów spy
+      window.addEventListener('wheel', unpin, {passive:true});
+      window.addEventListener('touchmove', unpin, {passive:true});
+      window.addEventListener('keydown', function(e){
+        if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ','Spacebar'].indexOf(e.key)>=0) unpin();
+      }, {passive:true});
       setActive();
     }
-    // klik spisu: PŁYNNE przewijanie + OD RAZU podświetl klikaną (deterministycznie),
-    // zawieś spy do zatrzymania (scrollend lub fallback 1s), potem wznów.
+    // klik spisu: PŁYNNE przewijanie + podświetl klikaną NA STAŁE (aż do własnego scrolla usera)
     links.forEach(function(a){
       a.addEventListener('click',function(e){
         var href=a.getAttribute('href')||'';
@@ -247,12 +253,10 @@ add_action( 'wp_footer', function () {
           var t=document.getElementById(href.slice(1));
           if(t){
             e.preventDefault();
-            spySuppressed=true;                // zawieś spy na czas animacji klika
-            highlight(href.slice(1));          // klikana aktywna NATYCHMIAST (deterministycznie)
+            pinned=true;                       // przyklej podświetlenie do klikanej (spy zamrożony)
+            highlight(href.slice(1));          // klikana aktywna od razu i trwale
             smoothTo(t);
             if(history.pushState){ history.pushState(null,'',href); }
-            if(releaseT) clearTimeout(releaseT);
-            releaseT=setTimeout(releaseSpy,1000); // fallback gdyby scrollend nie wpadł
           }
         }
         if(window.matchMedia('(max-width:960px)').matches&&toc){ toc.classList.remove('open'); }
