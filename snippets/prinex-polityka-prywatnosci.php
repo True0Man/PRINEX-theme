@@ -195,8 +195,14 @@ add_action( 'wp_footer', function () {
     var SPY_BUFFER=30;
     // spis treści: podświetlanie aktywnej sekcji
     if(sections.length&&links.length){
+      var hdr=document.querySelector('.prinex-header')||document.querySelector('header');
+      if(toc){ try{ toc.setAttribute('data-ppspy','v5'); }catch(e){} } // znacznik wersji (weryfikacja cache)
       var setActive=function(){
-        var line=OFFSET+SPY_BUFFER;
+        // linia detekcji = RZECZYWISTY dół sticky nagłówka (mierzony na żywo), ale NIGDY poniżej
+        // linii lądowania OFFSET(120) — bo tam ląduje klik. + SPY_BUFFER. Samokoryguje się na
+        // wysokość nagłówka / topbar-znika / pasek admina, bez rozjazdu z punktem lądowania.
+        var hb=hdr?hdr.getBoundingClientRect().bottom:OFFSET;
+        var line=Math.max(hb,OFFSET)+SPY_BUFFER;
         var active=sections[0];
         for(var i=0;i<sections.length;i++){
           if(sections[i].getBoundingClientRect().top<=line){ active=sections[i]; }
