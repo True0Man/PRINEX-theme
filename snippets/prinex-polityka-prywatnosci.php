@@ -88,6 +88,13 @@ body.pp-scope{background:#E8ECEF;}
 .pp-scope .pp-callout .pc-txt b{color:#0B457D;}
 .pp-scope .pp-callout a{font-weight:700;color:#0B457D;border-bottom:2px solid #78B833;text-decoration:none;}
 
+/* przycisk „DO GÓRY" — pływający, tylko polityka (#33) */
+.pp-scope .pp-totop{position:fixed;right:26px;bottom:26px;z-index:60;width:48px;height:48px;border-radius:50%;background:#78B833;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(11,69,125,.18);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s,visibility .25s,transform .25s,background .16s;}
+.pp-scope .pp-totop.show{opacity:1;visibility:visible;transform:translateY(0);}
+.pp-scope .pp-totop:hover{background:#62992A;}
+.pp-scope .pp-totop:focus-visible{outline:3px solid rgba(11,69,125,.55);outline-offset:2px;}
+.pp-scope .pp-totop svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+
 @media(max-width:960px){
   .pp-scope .pp-layout{grid-template-columns:1fr;gap:0;}
   .pp-scope .toc{position:static;margin-bottom:28px;background:#fff;border:1px solid #e1e6ea;border-radius:12px;box-shadow:0 4px 18px rgba(11,69,125,.08);padding:4px 18px;}
@@ -102,6 +109,7 @@ body.pp-scope{background:#E8ECEF;}
 @media(max-width:640px){
   .pp-scope .pp-head h1{font-size:28px;}
   .pp-scope .pp-section h2{font-size:20px;}
+  .pp-scope .pp-totop{right:16px;bottom:16px;width:44px;height:44px;}
 }
 </style>
 	<?php
@@ -147,25 +155,54 @@ add_action( 'wp_footer', function () {
 		return;
 	}
 	?>
+<button type="button" class="pp-totop" aria-label="Do góry" title="Do góry">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 <script>
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
+  function smoothTo(el){ if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); } } /* respektuje scroll-margin-top:120px sekcji */
   ready(function(){
-    var toc=document.querySelector('.pp-scope .toc'); if(!toc) return;
-    var head=toc.querySelector('.toc-head'), links=[].slice.call(toc.querySelectorAll('.toc-list a'));
-    if(head){ head.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.toggle('open'); } }); }
-    var sections=[].slice.call(document.querySelectorAll('.pp-scope .pp-section'));
-    if(!sections.length||!links.length) return;
-    function onScroll(){
-      var probe=140, active=null;
-      for(var i=0;i<sections.length;i++){ if(sections[i].getBoundingClientRect().top-probe<=0){ active=sections[i]; } }
-      if(!active) active=sections[0];
-      var id=active.id;
-      links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); });
+    var toc=document.querySelector('.pp-scope .toc');
+    var links=toc?[].slice.call(toc.querySelectorAll('.toc-list a')):[];
+    if(toc){
+      var head=toc.querySelector('.toc-head');
+      if(head){ head.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.toggle('open'); } }); }
     }
-    window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
-    // klik w spisie na mobile — zamknij po wyborze
-    links.forEach(function(a){ a.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.remove('open'); } }); });
+    var sections=[].slice.call(document.querySelectorAll('.pp-scope .pp-section'));
+    // spis treści: podświetlanie aktywnej sekcji
+    if(sections.length&&links.length){
+      var onScroll=function(){
+        var probe=140, active=null;
+        for(var i=0;i<sections.length;i++){ if(sections[i].getBoundingClientRect().top-probe<=0){ active=sections[i]; } }
+        if(!active) active=sections[0];
+        var id=active.id;
+        links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); });
+      };
+      window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+    }
+    // spis treści: PŁYNNE przewijanie do kotwicy (zamiast twardego skoku)
+    links.forEach(function(a){
+      a.addEventListener('click',function(e){
+        var href=a.getAttribute('href')||'';
+        if(href.charAt(0)==='#'){
+          var t=document.getElementById(href.slice(1));
+          if(t){
+            e.preventDefault();
+            smoothTo(t);
+            if(history.pushState){ history.pushState(null,'',href); }
+          }
+        }
+        if(window.matchMedia('(max-width:960px)').matches&&toc){ toc.classList.remove('open'); }
+      });
+    });
+    // przycisk „DO GÓRY": pojawia się po przewinięciu > 400px, płynny scroll do góry
+    var totop=document.querySelector('.pp-scope .pp-totop');
+    if(totop){
+      totop.addEventListener('click',function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+      var toggleTop=function(){ totop.classList.toggle('show', (window.pageYOffset||document.documentElement.scrollTop)>400); };
+      window.addEventListener('scroll', toggleTop, {passive:true}); toggleTop();
+    }
   });
 })();
 </script>
