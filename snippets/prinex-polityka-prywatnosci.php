@@ -1,0 +1,173 @@
+<?php
+/**
+ * PRINEX — Polityka prywatności: CSS/JS treści prawnej (#33).
+ * Scope: front-end. Warunkowane is_page( strona polityki ) — nie wycieka.
+ *
+ * Treść strony (wp_posts.post_content) to SAMA treść (bez własnej ramy — header/footer/nav
+ * pliku odrzucone). Ta warstwa dodaje minimalny CSS czytelności (layout spis-treści|treść,
+ * sekcje, notki) w tokenach PRINEX + JS spisu treści. Renderuje się w globalnej ramie PRINEX.
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+if ( ! function_exists( 'prinex_is_privacy_page' ) ) {
+	function prinex_is_privacy_page() {
+		return is_page( (int) get_option( 'wp_page_for_privacy_policy' ) ) || is_page( 'polityka-prywatnosci' );
+	}
+}
+
+add_action( 'wp_head', function () {
+	if ( ! prinex_is_privacy_page() ) {
+		return;
+	}
+	?>
+<style>
+/* tło + ukrycie dubla tytułu strony (treść ma własny h1) */
+body.pp-scope{background:#E8ECEF;}
+.pp-scope .entry-header{display:none !important;}
+.pp-scope .inside-article{background:transparent !important;padding-top:0 !important;}
+/* neutralizacja własnego .container z pliku (design 1400) → szerokość ramy PRINEX */
+.pp-scope .container{width:auto;max-width:1180px;margin:0 auto;padding:8px 0 60px;}
+
+/* breadcrumb (element treści, link → strona główna) */
+.pp-scope .breadcrumb{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#62992A;margin-bottom:20px;}
+.pp-scope .breadcrumb a{color:#62992A;text-decoration:none;transition:color .15s;}
+.pp-scope .breadcrumb a:hover{color:#78B833;}
+.pp-scope .breadcrumb .sep{color:#c2cad3;}
+.pp-scope .breadcrumb .cur{color:#8a939c;}
+
+/* nagłówek treści */
+.pp-scope .sig{width:52px;height:2px;background:#78B833;margin-bottom:22px;}
+.pp-scope .pp-head{margin-bottom:44px;text-align:center;}
+.pp-scope .pp-head .sig{margin:0 auto 20px;}
+.pp-scope .pp-head h1{font-size:44px;font-weight:700;color:#0B457D;line-height:1.06;margin:0;}
+.pp-scope .pp-head .pp-meta{display:flex;align-items:center;justify-content:center;gap:11px;font-size:16px;color:#5a6570;margin-top:16px;}
+.pp-scope .pp-head .pp-meta svg{width:19px;height:19px;stroke:#78B833;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
+.pp-scope .pp-head .pp-meta b{color:#0B457D;font-weight:700;}
+
+/* layout spis treści | treść */
+.pp-scope .pp-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:56px;align-items:start;}
+.pp-scope .toc{position:sticky;top:120px;}
+.pp-scope .toc-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;font-family:inherit;text-align:left;cursor:default;padding:0 0 16px;}
+.pp-scope .toc-head .toc-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a939c;}
+.pp-scope .toc-head .toc-chev{display:none;}
+.pp-scope .toc-list{list-style:none;margin:0;padding:0;border-left:1px solid #d7dde2;}
+.pp-scope .toc-list li{position:relative;margin:0;}
+.pp-scope .toc-list a{display:block;padding:9px 12px 9px 20px;margin-left:-1px;border-radius:0 8px 8px 0;font-size:14.5px;font-weight:400;line-height:1.4;color:#7a848d;border-left:2px solid transparent;text-decoration:none;transition:color .16s,border-color .16s,background .16s,transform .16s;}
+.pp-scope .toc-list a .n{font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
+.pp-scope .toc-list a:hover{color:#62992A;background:rgba(120,184,51,.1);border-left-color:#78B833;transform:translateX(2px);}
+.pp-scope .toc-list a:hover .n{color:#62992A;}
+.pp-scope .toc-list a.active{color:#0B457D;font-weight:700;border-left-color:#78B833;}
+.pp-scope .toc-list a.active .n{color:#78B833;}
+
+/* treść */
+.pp-scope .pp-content{max-width:820px;}
+.pp-scope .pp-intro{background:#fff;border:1px solid #e1e6ea;border-radius:16px;box-shadow:0 2px 16px rgba(11,69,125,.06);padding:28px 32px;margin-bottom:40px;display:flex;align-items:flex-start;gap:16px;}
+.pp-scope .pp-intro .pi-ic{flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:rgba(120,184,51,.14);display:flex;align-items:center;justify-content:center;}
+.pp-scope .pp-intro .pi-ic svg{width:23px;height:23px;stroke:#62992A;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.pp-scope .pp-intro p{font-size:16px;color:#5a6570;line-height:1.65;margin:0;}
+.pp-scope .pp-intro p b{color:#0B457D;font-weight:700;}
+.pp-scope .pp-section{scroll-margin-top:120px;padding-bottom:44px;margin-bottom:44px;border-bottom:1px solid #e1e6ea;}
+.pp-scope .pp-section:last-child{border-bottom:none;margin-bottom:0;}
+.pp-scope .sec-head{display:flex;align-items:center;gap:15px;margin-bottom:18px;}
+.pp-scope .pp-section .sec-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#78B833;color:#fff;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;}
+.pp-scope .pp-section h2{font-size:25px;font-weight:700;color:#0B457D;line-height:1.2;margin:0;}
+.pp-scope .pp-section p{color:#333;font-size:16.5px;line-height:1.72;margin:0 0 15px;}
+.pp-scope .pp-section p:last-child{margin-bottom:0;}
+.pp-scope .pp-section p b,.pp-scope .pp-section li b{color:#0B457D;font-weight:700;}
+.pp-scope .pp-section ul{list-style:none;margin:6px 0 15px;padding:0;display:flex;flex-direction:column;gap:11px;}
+.pp-scope .pp-section ul li{position:relative;padding-left:26px;font-size:16.5px;line-height:1.65;color:#333;margin:0;}
+.pp-scope .pp-section ul li::before{content:"";position:absolute;left:2px;top:11px;width:8px;height:2px;background:#78B833;border-radius:2px;}
+.pp-scope .pp-section a.inl,.pp-scope .pp-section a{color:#62992A;font-weight:600;border-bottom:1px solid rgba(98,153,42,.35);text-decoration:none;transition:color .15s,border-color .15s;}
+.pp-scope .pp-section a:hover{color:#78B833;border-color:#78B833;}
+.pp-scope .pp-note{margin:6px 0 4px;background:#fbfdf7;border:1px solid #d8e8c2;border-left:3px solid #78B833;border-radius:10px;padding:18px 22px;}
+.pp-scope .pp-note p{margin:0;font-size:16px;color:#41613a;line-height:1.65;}
+.pp-scope .pp-note p b{color:#62992A;}
+.pp-scope .pp-callout{margin-top:14px;background:#fff;border:1px solid #e1e6ea;border-radius:12px;box-shadow:inset 3px 0 0 #F39200;padding:20px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.pp-scope .pp-callout .pc-txt{font-size:16px;color:#5a6570;}
+.pp-scope .pp-callout .pc-txt b{color:#0B457D;}
+.pp-scope .pp-callout a{font-weight:700;color:#0B457D;border-bottom:2px solid #78B833;text-decoration:none;}
+
+@media(max-width:960px){
+  .pp-scope .pp-layout{grid-template-columns:1fr;gap:0;}
+  .pp-scope .toc{position:static;margin-bottom:28px;background:#fff;border:1px solid #e1e6ea;border-radius:12px;box-shadow:0 4px 18px rgba(11,69,125,.08);padding:4px 18px;}
+  .pp-scope .toc-head{padding:16px 0;cursor:pointer;}
+  .pp-scope .toc-head .toc-chev{display:block;width:20px;height:20px;stroke:#0B457D;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s;}
+  .pp-scope .toc.open .toc-head .toc-chev{transform:rotate(180deg);}
+  .pp-scope .toc-list{display:none;padding-bottom:14px;max-height:60vh;overflow:auto;border-left:none;}
+  .pp-scope .toc.open .toc-list{display:block;}
+  .pp-scope .pp-content{max-width:none;}
+  .pp-scope .pp-head h1{font-size:34px;}
+}
+@media(max-width:640px){
+  .pp-scope .pp-head h1{font-size:28px;}
+  .pp-scope .pp-section h2{font-size:20px;}
+}
+</style>
+	<?php
+} );
+
+/* dodaj klasę scope do body (pewny selektor niezależny od page-id) */
+add_filter( 'body_class', function ( $classes ) {
+	if ( prinex_is_privacy_page() ) {
+		$classes[] = 'pp-scope';
+	}
+	return $classes;
+} );
+
+/* Wyłącz wpautop dla strony polityki — treść ma własne <p>, a wpautop wstrzykuje
+ * puste <p> jako dzieci .pp-layout, psując grid (spis treści | treść). */
+add_action( 'wp', function () {
+	if ( prinex_is_privacy_page() ) {
+		remove_filter( 'the_content', 'wpautop' );
+		remove_filter( 'the_content', 'shortcode_unautop' );
+	}
+} );
+
+/* Breadcrumb — element TREŚCI (nie ramy), lokalny w #33; link „PRINEX" → strona główna.
+ * Wstrzyknięty wewnątrz .container, nad pp-head (jak w mockupie). */
+add_filter( 'the_content', function ( $content ) {
+	if ( ! prinex_is_privacy_page() || ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+	$bc = '<nav class="breadcrumb" aria-label="Ścieżka nawigacji">'
+		. '<a href="' . esc_url( home_url( '/' ) ) . '">PRINEX</a>'
+		. '<span class="sep">/</span>'
+		. '<span class="cur">Polityka prywatności</span>'
+		. '</nav>';
+	if ( false !== strpos( $content, '<div class="container">' ) ) {
+		return preg_replace( '/(<div class="container">)/', '$1' . $bc, $content, 1 );
+	}
+	return $bc . $content;
+}, 20 );
+
+/* JS — spis treści: collapse (mobile) + podświetlanie aktywnej sekcji */
+add_action( 'wp_footer', function () {
+	if ( ! prinex_is_privacy_page() ) {
+		return;
+	}
+	?>
+<script>
+(function(){
+  function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
+  ready(function(){
+    var toc=document.querySelector('.pp-scope .toc'); if(!toc) return;
+    var head=toc.querySelector('.toc-head'), links=[].slice.call(toc.querySelectorAll('.toc-list a'));
+    if(head){ head.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.toggle('open'); } }); }
+    var sections=[].slice.call(document.querySelectorAll('.pp-scope .pp-section'));
+    if(!sections.length||!links.length) return;
+    function onScroll(){
+      var probe=140, active=null;
+      for(var i=0;i<sections.length;i++){ if(sections[i].getBoundingClientRect().top-probe<=0){ active=sections[i]; } }
+      if(!active) active=sections[0];
+      var id=active.id;
+      links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); });
+    }
+    window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+    // klik w spisie na mobile — zamknij po wyborze
+    links.forEach(function(a){ a.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.remove('open'); } }); });
+  });
+})();
+</script>
+	<?php
+} );

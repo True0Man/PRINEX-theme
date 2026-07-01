@@ -182,5 +182,13 @@
         "scope": "global",
         "active": true,
         "description": "Konto: sekcja Faktura + AJAX (user_meta _prinex_invoice_data, nonce/per-user/checksum). Checkout: DODATEK przez hook (checkbox+pola), zapis do meta zamowienia _prinex_invoice; walidacja+zapis TYLKO gdy zaznaczone (parytet #28 bez faktury). Wlasne klasy toggle (.pxc-inv-pill) odciete od #28/#30."
+    },
+    {
+        "id": "33",
+        "name": "PRINEX — Polityka prywatności (CSS/JS treści) (#33)",
+        "filename": "prinex-polityka-prywatnosci.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "CSS/JS treści prawnej (is_page polityki, body.pp-scope): layout spis-tresci|tresc, sekcje, notki, tokeny PRINEX + JS spisu tresci (collapse mobile + scroll-spy). Tresc w post_content strony 3 (bez wlasnej ramy - header/footer/nav pliku odrzucone)."
     }
 ]

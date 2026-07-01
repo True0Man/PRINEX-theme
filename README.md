@@ -163,6 +163,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 30 | Książka adresowa (Warstwa 2c) | global | ✅ | Wiele adresów (user_meta _prinex_addresses); AJAX CRUD z nonce + autoryzacją per-ID + NIP checksum; UI Dane do wysyłki. Scope global (wp_ajax) |
 | 31 | Checkout: picker zapisanego adresu (2c-int) | front-end | ✅ | Dodatek przez hook: wybor zapisanego adresu → prefill pol billing; rdzen #28 bez zmian; gosc nie widzi |
 | 32 | Faktura na inne dane (2d) | global | ✅ | Konto: sekcja+AJAX (_prinex_invoice_data). Checkout: dodatek przez hook, zapis meta zamowienia; walidacja/zapis tylko gdy zaznaczone (parytet #28); nonce/per-user/checksum |
+| 33 | Polityka prywatności (CSS/JS treści) | front-end | ✅ | is_page polityki (body.pp-scope): layout spis-treści/sekcje/notki + JS TOC. Treść = post_content strony 3 (slug polityka-prywatnosci), bez własnej ramy |
 
 ---
 
