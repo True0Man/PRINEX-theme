@@ -166,5 +166,13 @@
         "scope": "global",
         "active": true,
         "description": "Wiele adresów dostawy (custom CRUD na user_meta _prinex_addresses). AJAX add/edit/delete/set-default z nonce + autoryzacją per-ID (user tylko swoje) + sanityzacja/escaping + NIP checksum. UI Dane do wysyłki 1:1 mockup. Scope GLOBAL (handlery wp_ajax muszą działać w admin-ajax)."
+    },
+    {
+        "id": "31",
+        "name": "PRINEX — Checkout: picker zapisanego adresu (#31, 2c-int)",
+        "filename": "prinex-checkout-adres-picker.php",
+        "scope": "front-end",
+        "active": true,
+        "description": "Dodatek OBOK #28 (nie zmienia rdzenia): hook woocommerce_checkout_before_customer_details renderuje picker zapisanych adresow (prinex_get_addresses), JS prefilluje inputy billing + przelacznik Osoba/Firma. Gosc nie widzi. process_checkout #28 bez zmian (regresja osoba/firma/zly NIP identyczna)."
     }
 ]

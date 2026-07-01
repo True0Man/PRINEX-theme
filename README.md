@@ -161,6 +161,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 28 | Dostawa i płatność + Zamówienie otrzymane | front-end | ✅ | Override checkoutu (5 szablonów: form-checkout/form-billing/review-order/payment/thankyou); stepper, Dane odbiorcy (Osoba/Firma+NIP), status plików jak koszyk, bramki w lewej kol., terms→#place_order, meta HPOS-safe; ekran order-received brandowany; is_checkout() |
 | 29 | Panel klienta /moje-konto/ | front-end | ✅ | Override myaccount/* (6 ekranow: login/pulpit/zamowienia/widok/adresy/dane konta); menu relabel+ukryj Pobrania; status chip; order-again; reuse status plikow + dane do przelewu. Warstwa 1 |
 | 30 | Książka adresowa (Warstwa 2c) | global | ✅ | Wiele adresów (user_meta _prinex_addresses); AJAX CRUD z nonce + autoryzacją per-ID + NIP checksum; UI Dane do wysyłki. Scope global (wp_ajax) |
+| 31 | Checkout: picker zapisanego adresu (2c-int) | front-end | ✅ | Dodatek przez hook: wybor zapisanego adresu → prefill pol billing; rdzen #28 bez zmian; gosc nie widzi |
 
 ---
 
