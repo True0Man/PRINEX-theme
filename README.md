@@ -34,7 +34,7 @@ Claude Design  ──►  Claude Code  ──►  serwer (SSH)  ──►  GitHu
 | **Szablon kategorii** | `woocommerce/taxonomy-product_cat-naklejki-3d-premium.php` | plik w repo |
 | **Font Figtree** | Code Snippet #9 | baza WP |
 | **Logo** | `assets/prinex-logo.svg` | plik w repo |
-| **CMP / baner cookies (RODO)** | Complianz GDPR (wtyczka) + snippet #35 (branding) + link stopki `#cmplz-manage-consent` (Element 162) | konfiguracja kreatora: **baza WP + REST**; CSS brandingu: `wp_snippets` (#35) |
+| **CMP / baner cookies (RODO)** | Complianz GDPR (wtyczka; kreator + **kolory w GUI**) + link stopki `#cmplz-manage-consent` (Element 162) | konfiguracja i paleta: **baza WP + REST** (GUI Complianz). Snippet #35 wycofany |
 
 > **Ważne:** dla Code Snippets **źródłem prawdy jest baza WP**, nie pliki.
 > Pliki w `snippets/` to mirror do review i historii. Edycja pliku **nie zmienia
@@ -166,7 +166,8 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 32 | Faktura na inne dane (2d) | global | ✅ | Konto: sekcja+AJAX (_prinex_invoice_data). Checkout: dodatek przez hook, zapis meta zamowienia; walidacja/zapis tylko gdy zaznaczone (parytet #28); nonce/per-user/checksum |
 | 33 | Polityka prywatności (CSS/JS treści) | front-end | ✅ | is_page polityki (body.pp-scope): layout spis-treści/sekcje/notki + JS TOC. Treść = post_content strony 3 (slug polityka-prywatnosci), bez własnej ramy |
 | 34 | Regulamin (CSS/JS treści) | front-end | ✅ | is_page('regulamin') (body.pp-scope) — klon #33: listy numerowane §§ + zagnieżdżone, blok Załącznika, scroll-spy v8 (pin po kliku, dynamiczny offset). Treść = post_content strony /regulamin/ (ID 210) |
-| 35 | Complianz — branding banera cookies | front-end | ✅ | CSS banera Complianz w tokenach PRINEX (`wp_head`, site-wide): box biały / akcent granat #0B457D, accept #78B833 / hover #62992A, tekst #333, font Figtree; override `.cmplz-*` `!important`, bez edycji rdzenia. `brandingCss:true` w `<head>` |
+
+> **#35 (Complianz — branding banera) — WYCOFANY 2026-07-01.** Kolidował z kolorami GUI Complianz. Branding banera przeniesiony w całości do konfiguracji Complianz (GUI: Consent Banner → Colors). Snippet usunięty z bazy i mirrora.
 
 ---
 
@@ -175,7 +176,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 ### ✅ Complianz — baner cookies (CMP), tryb startowy „tylko niezbędne" (2026-07-01)
 - **Wtyczka:** Complianz GDPR/CCPA (free) **v7.5.0**, aktywna. Bez cross-sell (Terms/Security pominięte).
 - **Tryb startowy:** aktywna tylko kategoria **Niezbędne**; **Analityczne i Marketingowe istnieją, ale PUSTE** — na stronie brak GA4/GTM/Ads/Meta (zweryfikowane: 0 takich skryptów w źródle).
-- **Branding:** snippet **#35** — tokeny PRINEX na baner (Figtree, granat #0B457D / zieleń #78B833, accept hover #62992A, tekst #333). Ładowany w `<head>` site-wide; renderuje się po aktywacji banera.
+- **Branding:** **kolory w GUI Complianz** (Consent Banner → Colors) — jedno źródło prawdy. **Snippet #35 WYCOFANY (2026-07-01):** kolidował z GUI (efekt: tło zieleń, „Akceptuję" nie jak przycisk). Po usunięciu #35 baner renderuje się poprawnie (zweryfikowane computed + zrzut): box biały `#FFFFFF`, Accept zieleń `#78B833`/biały tekst, Odrzucam/Ustawienia białe + granat `#0B457D`, hyperlink granat, toggle zieleń, font Figtree.
 - **Panel wycofania zgody:** link „Ustawienia cookies" → `#cmplz-manage-consent` w stopce (Element 162, dolny pasek obok Polityka/Regulamin). *Uwaga: edytowany przez `update_post_meta` — zadziałało (lint czysty + link renderuje), bo treść stopki nie ma literalnych backslashy; docelowo obowiązuje procedura `FROM_BASE64()` z §2.*
 - **Skan cookiedatabase.org:** aktywny (token Active), konto: maciej.mizgalski@prinex.com.pl.
 - **Dokumenty:** baner ma linkować do istniejącej **/polityka-prywatnosci/**; auto-polityka cookies Complianz **wyłączona** — ręczna Polityka prywatności pozostaje dokumentem głównym.
