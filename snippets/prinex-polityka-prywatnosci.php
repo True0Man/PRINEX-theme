@@ -28,9 +28,11 @@ body.pp-scope{background:#E8ECEF;}
 .pp-scope .inside-article{background:transparent !important;padding-top:0 !important;padding-left:0 !important;padding-right:0 !important;}
 /* wyzeruj poziomy inset treści, by blok siadł na lewej krawędzi kontenera serwisu (= krawędź nagłówka) */
 .pp-scope .entry-content{padding-left:0;padding-right:0;margin-left:0;margin-right:0;}
-/* neutralizacja własnego .container z pliku (design 1400) — wypełnia obszar treści ramy, BEZ centrowania.
+/* neutralizacja własnego .container z pliku (design 1400) — wypełnia PEŁNĄ szerokość kontenera
+   serwisu (1400), BEZ centrowania. Dzięki temu .pp-head (nagłówek) centruje się na osi serwisu
+   (= oś logo PRINEX), a nie na kolumnie treści. Blok spis|treść zawężony osobno (na .pp-layout).
    :not(.grid-container) chroni kontener serwisu GP przed kolizją klasy „container". */
-.pp-scope .container:not(.grid-container){width:auto;max-width:1064px;margin:0;padding:8px 0 60px;}
+.pp-scope .container:not(.grid-container){width:auto;max-width:none;margin:0;padding:8px 0 60px;}
 
 /* breadcrumb (element treści, link → strona główna) */
 .pp-scope .breadcrumb{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#62992A;margin-bottom:20px;}
@@ -51,9 +53,9 @@ body.pp-scope{background:#E8ECEF;}
 /* layout: spis (lewa krawędź) | treść (wyśrodkowana na osi strony) | pusta prawa.
    Kolumny boczne 1fr (równe) + równe gapy → treść ma optyczny środek kontenera,
    niezależnie od spisu (świadome odejście od mockupu). */
-/* blok jak mockup (288 | treść, gap 56) ale DOSUNIĘTY DO LEWEJ; prawa strona pusta (OK).
-   justify-content:start = kolumny spakowane w lewo (bez pustej lewej kolumny). */
-.pp-scope .pp-layout{display:grid;grid-template-columns:288px minmax(0,720px);gap:56px;align-items:start;justify-content:start;}
+/* blok jak mockup (288 | treść, gap 56) DOSUNIĘTY DO LEWEJ; prawa strona pusta (OK).
+   max-width:1064 (288+56+720) + margin:0 → zawężenie TYLKO tego bloku, nie nagłówka. */
+.pp-scope .pp-layout{display:grid;grid-template-columns:288px minmax(0,720px);gap:56px;align-items:start;justify-content:start;max-width:1064px;margin:0;}
 /* sticky NA grid-itemie (aside), nie na wewnętrznym .toc — inaczej aside=start jest krótki
    i spis odjeżdża. align-self:start = własna wysokość, sticky w obrębie wysokiego pp-content. */
 .pp-scope .pp-layout>aside{position:sticky;top:120px;align-self:start;}
