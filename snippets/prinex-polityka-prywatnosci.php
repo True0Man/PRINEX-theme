@@ -23,7 +23,9 @@ add_action( 'wp_head', function () {
 	?>
 <style>
 /* tło + ukrycie dubla tytułu strony (treść ma własny h1) */
-body.pp-scope{background:#E8ECEF;}
+/* --pp-offset = JEDNA wartość offsetu sticky nagłówka: używana przez scroll-margin-top klika,
+   sticky spisu ORAZ scroll-spy (JS czyta ją z CSS) — klik i podświetlenie zawsze zgodne. */
+body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .entry-header{display:none !important;}
 .pp-scope .inside-article{background:transparent !important;padding-top:0 !important;padding-left:0 !important;padding-right:0 !important;}
 /* wyzeruj poziomy inset treści, by blok siadł na lewej krawędzi kontenera serwisu (= krawędź nagłówka) */
@@ -58,7 +60,7 @@ body.pp-scope{background:#E8ECEF;}
 .pp-scope .pp-layout{display:grid;grid-template-columns:288px minmax(0,720px);gap:56px;align-items:start;justify-content:start;max-width:1064px;margin:0;}
 /* sticky NA grid-itemie (aside), nie na wewnętrznym .toc — inaczej aside=start jest krótki
    i spis odjeżdża. align-self:start = własna wysokość, sticky w obrębie wysokiego pp-content. */
-.pp-scope .pp-layout>aside{position:sticky;top:120px;align-self:start;}
+.pp-scope .pp-layout>aside{position:sticky;top:var(--pp-offset);align-self:start;}
 .pp-scope .toc-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;font-family:inherit;text-align:left;cursor:default;padding:0 0 16px;}
 .pp-scope .toc-head .toc-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a939c;}
 .pp-scope .toc-head .toc-chev{display:none;}
@@ -78,7 +80,7 @@ body.pp-scope{background:#E8ECEF;}
 .pp-scope .pp-intro .pi-ic svg{width:23px;height:23px;stroke:#62992A;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 .pp-scope .pp-intro p{font-size:16px;color:#5a6570;line-height:1.65;margin:0;}
 .pp-scope .pp-intro p b{color:#0B457D;font-weight:700;}
-.pp-scope .pp-section{scroll-margin-top:120px;padding-bottom:44px;margin-bottom:44px;border-bottom:1px solid #e1e6ea;}
+.pp-scope .pp-section{scroll-margin-top:var(--pp-offset);padding-bottom:44px;margin-bottom:44px;border-bottom:1px solid #e1e6ea;}
 .pp-scope .pp-section:last-child{border-bottom:none;margin-bottom:0;}
 .pp-scope .sec-head{display:flex;align-items:center;gap:15px;margin-bottom:18px;}
 .pp-scope .pp-section .sec-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#78B833;color:#fff;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;}
@@ -184,16 +186,27 @@ add_action( 'wp_footer', function () {
       if(head){ head.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.toggle('open'); } }); }
     }
     var sections=[].slice.call(document.querySelectorAll('.pp-scope .pp-section'));
+    // OFFSET = TA SAMA wartość co scroll-margin-top sekcji i sticky nagłówka (CSS var --pp-offset).
+    // Dzięki temu linia detekcji spy pokrywa się z miejscem, w którym ląduje klik.
+    var scopeEl=document.querySelector('.pp-scope')||document.body;
+    var OFFSET=parseInt(getComputedStyle(scopeEl).getPropertyValue('--pp-offset'),10)||120;
     // spis treści: podświetlanie aktywnej sekcji
     if(sections.length&&links.length){
       var onScroll=function(){
-        var probe=140, active=null;
-        for(var i=0;i<sections.length;i++){ if(sections[i].getBoundingClientRect().top-probe<=0){ active=sections[i]; } }
-        if(!active) active=sections[0];
+        // aktywna = OSTATNIA sekcja, której górna krawędź minęła linię nagłówka (OFFSET).
+        // Czysta funkcja pozycji scrolla → symetryczna w dół i w górę, bez migotania na styku.
+        var line=OFFSET+2; // +2px bufor antymigotanie (subpiksele)
+        var active=sections[0];
+        for(var i=0;i<sections.length;i++){
+          if(sections[i].getBoundingClientRect().top<=line){ active=sections[i]; }
+          else { break; } // sekcje w kolejności — pierwsza poniżej linii kończy pętlę
+        }
         var id=active.id;
         links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); });
       };
-      window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+      window.addEventListener('scroll', onScroll, {passive:true});
+      window.addEventListener('resize', onScroll, {passive:true});
+      onScroll();
     }
     // spis treści: PŁYNNE przewijanie do kotwicy (zamiast twardego skoku)
     links.forEach(function(a){
