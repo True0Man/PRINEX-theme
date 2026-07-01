@@ -74,10 +74,13 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .pp-section a.inl,.pp-scope .pp-section a{color:#62992A;font-weight:600;border-bottom:1px solid rgba(98,153,42,.35);text-decoration:none;transition:color .15s,border-color .15s;}
 .pp-scope .pp-section a:hover{color:#78B833;border-color:#78B833;}
 
-/* numerowane punkty paragrafu (1., 2., 3. …) — granatowe znaczniki, hanging indent */
+/* numerowane punkty paragrafu: granatowy numer WYŚRODKOWANY w kolumnie 38px (środek 19px =
+   pod białą cyfrą w kółku sekcji); tekst punktu wcięty do 53px (38 kółko + 15 gap = pod tytułem h2). */
 .pp-scope .pp-section ol.lst{list-style:none;counter-reset:it;margin:4px 0 14px;padding:0;display:flex;flex-direction:column;gap:13px;}
-.pp-scope .pp-section ol.lst>li{counter-increment:it;position:relative;padding-left:34px;font-size:16.5px;line-height:1.72;color:#333;}
-.pp-scope .pp-section ol.lst>li::before{content:counter(it)".";position:absolute;left:0;top:0;font-weight:700;color:#0B457D;font-variant-numeric:tabular-nums;}
+.pp-scope .pp-section ol.lst>li{counter-increment:it;position:relative;padding-left:53px;font-size:16.5px;line-height:1.72;color:#333;}
+.pp-scope .pp-section ol.lst>li::before{content:counter(it)".";position:absolute;left:0;top:0;width:38px;text-align:center;font-weight:700;color:#0B457D;font-variant-numeric:tabular-nums;}
+/* akapity bez numeru (np. §11) — tekst wyrównany do tytułu sekcji (53px) */
+.pp-scope .pp-section>p{padding-left:53px;}
 .pp-scope .pp-section ol.lst>li>ul.sub{margin:10px 0 2px;}
 /* lista zagnieżdżona (tolerancje §8 / organy §10) */
 .pp-scope .pp-section ul.sub{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
