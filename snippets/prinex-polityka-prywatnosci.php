@@ -66,8 +66,10 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .toc-head .toc-chev{display:none;}
 .pp-scope .toc-list{list-style:none;margin:0;padding:0;border-left:1px solid #d7dde2;}
 .pp-scope .toc-list li{position:relative;margin:0;}
-.pp-scope .toc-list a{display:block;padding:9px 12px 9px 20px;margin-left:-1px;border-radius:0 8px 8px 0;font-size:14.5px;font-weight:400;line-height:1.4;color:#7a848d;border-left:2px solid transparent;text-decoration:none;transition:color .16s,border-color .16s,background .16s,transform .16s;}
-.pp-scope .toc-list a .n{font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
+/* flex: numer = osobna kolumna (stała), tytuł zawija się we własnej → druga linia
+   wyrównana do tekstu tytułu, nie do numeru (hanging indent). */
+.pp-scope .toc-list a{display:flex;align-items:baseline;padding:9px 12px 9px 20px;margin-left:-1px;border-radius:0 8px 8px 0;font-size:14.5px;font-weight:400;line-height:1.4;color:#7a848d;border-left:2px solid transparent;text-decoration:none;transition:color .16s,border-color .16s,background .16s,transform .16s;}
+.pp-scope .toc-list a .n{flex:0 0 auto;font-variant-numeric:tabular-nums;color:#b3bbc3;margin-right:8px;font-weight:600;}
 .pp-scope .toc-list a:hover{color:#62992A;background:rgba(120,184,51,.1);border-left-color:#78B833;transform:translateX(2px);}
 .pp-scope .toc-list a:hover .n{color:#62992A;}
 .pp-scope .toc-list a.active{color:#0B457D;font-weight:700;border-left-color:#78B833;}
