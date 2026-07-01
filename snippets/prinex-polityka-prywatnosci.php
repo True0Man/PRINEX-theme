@@ -186,23 +186,30 @@ add_action( 'wp_footer', function () {
       if(head){ head.addEventListener('click',function(){ if(window.matchMedia('(max-width:960px)').matches){ toc.classList.toggle('open'); } }); }
     }
     var sections=[].slice.call(document.querySelectorAll('.pp-scope .pp-section'));
-    // OFFSET = baza z CSS var --pp-offset (= scroll-margin-top klika i sticky nagłówek, 120).
     var scopeEl=document.querySelector('.pp-scope')||document.body;
-    var OFFSET=parseInt(getComputedStyle(scopeEl).getPropertyValue('--pp-offset'),10)||120;
-    // SPY_BUFFER = JEDYNA różnica: linia detekcji spy leży PONIŻEJ linii lądowania (120+30=150),
-    // żeby sekcja zatrzymana na 120px (nawet z ułamkowym błędem lądowania) była pewnie aktywna,
-    // a nie „na styk" (co powodowało spadek na poprzednią pod koniec hamowania smooth-scrolla).
     var SPY_BUFFER=30;
+    // --pp-offset DYNAMICZNY = BASE (nagłówek ramy + gap, zatwierdzone dla gościa: 120)
+    //   + realna wysokość paska admina WP GDY przykrywa górę (position:fixed).
+    //   Na mobile pasek admina bywa position:absolute i znika przy scrollu → NIE doliczamy.
+    // Jedna wartość liczona z DOM zasila: scroll-margin-top sekcji (klik), sticky top spisu
+    //   ORAZ próg scroll-spy — bez trzech hardkodów, bez rozjazdu z paskiem admina.
+    var BASE=120;
+    function fixedAdminBarH(){
+      var bar=document.getElementById('wpadminbar');
+      if(bar && getComputedStyle(bar).position==='fixed'){ return bar.offsetHeight||0; }
+      return 0;
+    }
+    function applyOffset(){ scopeEl.style.setProperty('--pp-offset',(BASE+fixedAdminBarH())+'px'); }
+    applyOffset();
+    // pasek admina może pojawić się/zniknąć po DOM ready → obserwuj dzieci body i przelicz
+    if(window.MutationObserver){ try{ new MutationObserver(applyOffset).observe(document.body,{childList:true}); }catch(e){} }
+    function currentOffset(){ return parseInt(getComputedStyle(scopeEl).getPropertyValue('--pp-offset'),10)||BASE; }
     // spis treści: podświetlanie aktywnej sekcji
     if(sections.length&&links.length){
-      var hdr=document.querySelector('.prinex-header')||document.querySelector('header');
-      if(toc){ try{ toc.setAttribute('data-ppspy','v5'); }catch(e){} } // znacznik wersji (weryfikacja cache)
+      if(toc){ try{ toc.setAttribute('data-ppspy','v6'); }catch(e){} } // znacznik wersji (weryfikacja cache)
       var setActive=function(){
-        // linia detekcji = RZECZYWISTY dół sticky nagłówka (mierzony na żywo), ale NIGDY poniżej
-        // linii lądowania OFFSET(120) — bo tam ląduje klik. + SPY_BUFFER. Samokoryguje się na
-        // wysokość nagłówka / topbar-znika / pasek admina, bez rozjazdu z punktem lądowania.
-        var hb=hdr?hdr.getBoundingClientRect().bottom:OFFSET;
-        var line=Math.max(hb,OFFSET)+SPY_BUFFER;
+        // próg spy = TA SAMA dynamiczna wartość co punkt lądowania (--pp-offset) + bufor.
+        var line=currentOffset()+SPY_BUFFER;
         var active=sections[0];
         for(var i=0;i<sections.length;i++){
           if(sections[i].getBoundingClientRect().top<=line){ active=sections[i]; }
@@ -223,7 +230,9 @@ add_action( 'wp_footer', function () {
       var onSettle=function(){ if(settleT) clearTimeout(settleT); settleT=setTimeout(setActive,120); };
       window.addEventListener('scroll', function(){ onScroll(); onSettle(); }, {passive:true});
       if('onscrollend' in window){ window.addEventListener('scrollend', setActive, {passive:true}); }
-      window.addEventListener('resize', setActive, {passive:true});
+      window.addEventListener('resize', function(){ applyOffset(); setActive(); }, {passive:true});
+      // po pojawieniu się paska admina (observer zmienia --pp-offset) przelicz też podświetlenie
+      if(window.MutationObserver){ try{ new MutationObserver(setActive).observe(document.body,{childList:true}); }catch(e){} }
       setActive();
     }
     // spis treści: PŁYNNE przewijanie do kotwicy (zamiast twardego skoku)
