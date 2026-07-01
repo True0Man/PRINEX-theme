@@ -108,6 +108,8 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .pp-callout .pc-txt{font-size:16px;color:#5a6570;}
 .pp-scope .pp-callout .pc-txt b{color:#0B457D;}
 .pp-scope .pp-callout a{font-weight:700;color:#0B457D;border-bottom:2px solid #78B833;text-decoration:none;}
+/* białe ramki (note/callout) — lewa krawędź wyrównana do tytułu sekcji (53px) */
+.pp-scope .pp-section .pp-note,.pp-scope .pp-section .pp-callout{margin-left:53px;}
 
 /* przycisk „DO GÓRY" — pływający, tylko polityka (#33) */
 .pp-scope .pp-totop{position:fixed;right:26px;bottom:26px;z-index:60;width:48px;height:48px;border-radius:50%;background:#78B833;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(11,69,125,.18);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s,visibility .25s,transform .25s,background .16s;}
