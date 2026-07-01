@@ -95,6 +95,9 @@ body.pp-scope{background:#E8ECEF;--pp-offset:120px;}
 .pp-scope .pp-section ul{list-style:none;margin:6px 0 15px;padding:0;display:flex;flex-direction:column;gap:11px;}
 .pp-scope .pp-section ul li{position:relative;padding-left:26px;font-size:16.5px;line-height:1.65;color:#333;margin:0;}
 .pp-scope .pp-section ul li::before{content:"";position:absolute;left:2px;top:11px;width:8px;height:2px;background:#78B833;border-radius:2px;}
+/* tekst sekcji wyrównany do tytułu (h2 na 53px = 38 kółko + 15 gap); w listach bullet w gutterze, tekst na 53 */
+.pp-scope .pp-section>p{padding-left:53px;}
+.pp-scope .pp-section>ul{padding-left:27px;}
 .pp-scope .pp-section a.inl,.pp-scope .pp-section a{color:#62992A;font-weight:600;border-bottom:1px solid rgba(98,153,42,.35);text-decoration:none;transition:color .15s,border-color .15s;}
 .pp-scope .pp-section a:hover{color:#78B833;border-color:#78B833;}
 .pp-scope .pp-note{margin:6px 0 4px;background:#fbfdf7;border:1px solid #d8e8c2;border-left:3px solid #78B833;border-radius:10px;padding:18px 22px;}
