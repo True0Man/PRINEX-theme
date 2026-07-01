@@ -26,8 +26,9 @@ add_action( 'wp_head', function () {
 body.pp-scope{background:#E8ECEF;}
 .pp-scope .entry-header{display:none !important;}
 .pp-scope .inside-article{background:transparent !important;padding-top:0 !important;}
-/* neutralizacja własnego .container z pliku (design 1400) → szerokość ramy PRINEX */
-.pp-scope .container{width:auto;max-width:1180px;margin:0 auto;padding:8px 0 60px;}
+/* neutralizacja własnego .container z pliku (design 1400) → szerokość ramy PRINEX
+   1280 = 240(spis) + 40 + 720(treść) + 40 + 240(pusta) — symetrycznie, treść na osi */
+.pp-scope .container{width:auto;max-width:1280px;margin:0 auto;padding:8px 0 60px;}
 
 /* breadcrumb (element treści, link → strona główna) */
 .pp-scope .breadcrumb{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#62992A;margin-bottom:20px;}
@@ -45,9 +46,14 @@ body.pp-scope{background:#E8ECEF;}
 .pp-scope .pp-head .pp-meta svg{width:19px;height:19px;stroke:#78B833;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
 .pp-scope .pp-head .pp-meta b{color:#0B457D;font-weight:700;}
 
-/* layout spis treści | treść */
-.pp-scope .pp-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:56px;align-items:start;}
-.pp-scope .toc{position:sticky;top:120px;}
+/* layout: spis (lewa krawędź) | treść (wyśrodkowana na osi strony) | pusta prawa.
+   Kolumny boczne 1fr (równe) + równe gapy → treść ma optyczny środek kontenera,
+   niezależnie od spisu (świadome odejście od mockupu). */
+.pp-scope .pp-layout{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,720px) minmax(220px,1fr);gap:0 40px;align-items:start;}
+/* sticky NA grid-itemie (aside), nie na wewnętrznym .toc — inaczej aside=start jest krótki
+   i spis odjeżdża. align-self:start = własna wysokość, sticky w obrębie wysokiego pp-content. */
+.pp-scope .pp-layout>aside{position:sticky;top:120px;align-self:start;}
+.pp-scope .toc{max-width:260px;}
 .pp-scope .toc-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;font-family:inherit;text-align:left;cursor:default;padding:0 0 16px;}
 .pp-scope .toc-head .toc-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a939c;}
 .pp-scope .toc-head .toc-chev{display:none;}
@@ -61,7 +67,7 @@ body.pp-scope{background:#E8ECEF;}
 .pp-scope .toc-list a.active .n{color:#78B833;}
 
 /* treść */
-.pp-scope .pp-content{max-width:820px;}
+.pp-scope .pp-content{max-width:720px;margin-inline:auto;}
 .pp-scope .pp-intro{background:#fff;border:1px solid #e1e6ea;border-radius:16px;box-shadow:0 2px 16px rgba(11,69,125,.06);padding:28px 32px;margin-bottom:40px;display:flex;align-items:flex-start;gap:16px;}
 .pp-scope .pp-intro .pi-ic{flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:rgba(120,184,51,.14);display:flex;align-items:center;justify-content:center;}
 .pp-scope .pp-intro .pi-ic svg{width:23px;height:23px;stroke:#62992A;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
@@ -97,6 +103,7 @@ body.pp-scope{background:#E8ECEF;}
 
 @media(max-width:960px){
   .pp-scope .pp-layout{grid-template-columns:1fr;gap:0;}
+  .pp-scope .pp-layout>aside{position:static;}
   .pp-scope .toc{position:static;margin-bottom:28px;background:#fff;border:1px solid #e1e6ea;border-radius:12px;box-shadow:0 4px 18px rgba(11,69,125,.08);padding:4px 18px;}
   .pp-scope .toc-head{padding:16px 0;cursor:pointer;}
   .pp-scope .toc-head .toc-chev{display:block;width:20px;height:20px;stroke:#0B457D;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s;}
