@@ -189,10 +189,9 @@ add_action( 'wp_footer', function () {
     var scopeEl=document.querySelector('.pp-scope')||document.body;
     var SPY_BUFFER=30;
     // --pp-offset DYNAMICZNY = BASE (nagłówek ramy + gap, zatwierdzone dla gościa: 120)
-    //   + realna wysokość paska admina WP GDY przykrywa górę (position:fixed).
-    //   Na mobile pasek admina bywa position:absolute i znika przy scrollu → NIE doliczamy.
-    // Jedna wartość liczona z DOM zasila: scroll-margin-top sekcji (klik), sticky top spisu
-    //   ORAZ próg scroll-spy — bez trzech hardkodów, bez rozjazdu z paskiem admina.
+    //   + realna wysokość paska admina WP GDY przykrywa górę (position:fixed; na mobile bywa
+    //   absolute i znika przy scrollu → NIE doliczamy). Zasila scroll-margin-top sekcji,
+    //   sticky top spisu ORAZ próg spy — jedna wartość, bez rozjazdu z paskiem admina.
     var BASE=120;
     function fixedAdminBarH(){
       var bar=document.getElementById('wpadminbar');
@@ -201,41 +200,46 @@ add_action( 'wp_footer', function () {
     }
     function applyOffset(){ scopeEl.style.setProperty('--pp-offset',(BASE+fixedAdminBarH())+'px'); }
     applyOffset();
-    // pasek admina może pojawić się/zniknąć po DOM ready → obserwuj dzieci body i przelicz
-    if(window.MutationObserver){ try{ new MutationObserver(applyOffset).observe(document.body,{childList:true}); }catch(e){} }
+    // admin bar: przelicz na load + kilka opóźnień (późny render) + resize — BEZ MutationObserver
+    // (obserwator na body odpalał się przy każdej mutacji żywej strony → szum/wyścigi).
+    [0,400,1200].forEach(function(d){ setTimeout(applyOffset,d); });
     function currentOffset(){ return parseInt(getComputedStyle(scopeEl).getPropertyValue('--pp-offset'),10)||BASE; }
-    // spis treści: podświetlanie aktywnej sekcji
+
+    if(toc){ try{ toc.setAttribute('data-ppspy','v7'); }catch(e){} } // znacznik wersji (weryfikacja cache)
+
+    // spySuppressed: podczas smooth-scrolla WYWOŁANEGO KLIKIEM spis-treści spy jest zawieszony,
+    // żeby nie nadpisywać docelowej sekcji sekcją przejściową (wyścig klik vs własna animacja).
+    var spySuppressed=false, releaseT=null;
+    function highlight(id){ links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); }); }
+    function setActive(){
+      if(spySuppressed) return;                 // nie ruszaj podświetlenia w trakcie animacji klika
+      if(!sections.length||!links.length) return;
+      var line=currentOffset()+SPY_BUFFER;      // próg = ta sama dynamiczna wartość co lądowanie + bufor
+      var active=sections[0];
+      for(var i=0;i<sections.length;i++){
+        if(sections[i].getBoundingClientRect().top<=line){ active=sections[i]; }
+        else { break; } // sekcje w kolejności — pierwsza poniżej linii kończy pętlę
+      }
+      if((window.innerHeight+window.pageYOffset)>=(document.documentElement.scrollHeight-2)){
+        active=sections[sections.length-1]; // koniec strony → ostatnia sekcja
+      }
+      highlight(active.id);
+    }
+    function releaseSpy(){ if(releaseT){ clearTimeout(releaseT); releaseT=null; } spySuppressed=false; setActive(); }
+
     if(sections.length&&links.length){
-      if(toc){ try{ toc.setAttribute('data-ppspy','v6'); }catch(e){} } // znacznik wersji (weryfikacja cache)
-      var setActive=function(){
-        // próg spy = TA SAMA dynamiczna wartość co punkt lądowania (--pp-offset) + bufor.
-        var line=currentOffset()+SPY_BUFFER;
-        var active=sections[0];
-        for(var i=0;i<sections.length;i++){
-          if(sections[i].getBoundingClientRect().top<=line){ active=sections[i]; }
-          else { break; } // sekcje w kolejności — pierwsza poniżej linii kończy pętlę
-        }
-        // koniec strony (nie da się dociągnąć góry ostatniej sekcji do progu) → ostatnia sekcja
-        if((window.innerHeight+window.pageYOffset)>=(document.documentElement.scrollHeight-2)){
-          active=sections[sections.length-1];
-        }
-        var id=active.id;
-        links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+id); });
-      };
-      // throttling per-scroll (rAF) — płynnie w trakcie animacji…
       var raf=null;
       var onScroll=function(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=null; setActive(); }); };
-      // …ORAZ przeliczenie PO ZATRZYMANIU (finalny stan na spoczynku, nie na klatce hamowania):
       var settleT=null;
       var onSettle=function(){ if(settleT) clearTimeout(settleT); settleT=setTimeout(setActive,120); };
       window.addEventListener('scroll', function(){ onScroll(); onSettle(); }, {passive:true});
-      if('onscrollend' in window){ window.addEventListener('scrollend', setActive, {passive:true}); }
+      // scrollend: jeśli był klik (spy zawieszony) → WZNÓW spy; w innym razie zwykłe przeliczenie.
+      if('onscrollend' in window){ window.addEventListener('scrollend', function(){ if(spySuppressed) releaseSpy(); else setActive(); }, {passive:true}); }
       window.addEventListener('resize', function(){ applyOffset(); setActive(); }, {passive:true});
-      // po pojawieniu się paska admina (observer zmienia --pp-offset) przelicz też podświetlenie
-      if(window.MutationObserver){ try{ new MutationObserver(setActive).observe(document.body,{childList:true}); }catch(e){} }
       setActive();
     }
-    // spis treści: PŁYNNE przewijanie do kotwicy (zamiast twardego skoku)
+    // klik spisu: PŁYNNE przewijanie + OD RAZU podświetl klikaną (deterministycznie),
+    // zawieś spy do zatrzymania (scrollend lub fallback 1s), potem wznów.
     links.forEach(function(a){
       a.addEventListener('click',function(e){
         var href=a.getAttribute('href')||'';
@@ -243,8 +247,12 @@ add_action( 'wp_footer', function () {
           var t=document.getElementById(href.slice(1));
           if(t){
             e.preventDefault();
+            spySuppressed=true;                // zawieś spy na czas animacji klika
+            highlight(href.slice(1));          // klikana aktywna NATYCHMIAST (deterministycznie)
             smoothTo(t);
             if(history.pushState){ history.pushState(null,'',href); }
+            if(releaseT) clearTimeout(releaseT);
+            releaseT=setTimeout(releaseSpy,1000); // fallback gdyby scrollend nie wpadł
           }
         }
         if(window.matchMedia('(max-width:960px)').matches&&toc){ toc.classList.remove('open'); }
