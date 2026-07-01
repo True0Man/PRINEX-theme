@@ -158,5 +158,13 @@
         "scope": "front-end",
         "active": true,
         "description": "Override myaccount/* (login, dashboard, orders, view-order, edit-account/address, navigation) + CSS systemu PRINEX (is_account_page) + menu relabel/ukryj Pobrania + status chip + order-again. Reuse status plikow/dane do przelewu jak order-received. Warstwa 1 (wyglad)."
+    },
+    {
+        "id": "30",
+        "name": "PRINEX — Książka adresowa (#30, Warstwa 2c)",
+        "filename": "prinex-ksiazka-adresowa.php",
+        "scope": "global",
+        "active": true,
+        "description": "Wiele adresów dostawy (custom CRUD na user_meta _prinex_addresses). AJAX add/edit/delete/set-default z nonce + autoryzacją per-ID (user tylko swoje) + sanityzacja/escaping + NIP checksum. UI Dane do wysyłki 1:1 mockup. Scope GLOBAL (handlery wp_ajax muszą działać w admin-ajax)."
     }
 ]

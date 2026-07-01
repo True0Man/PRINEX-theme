@@ -160,6 +160,7 @@ Legenda: ✅ aktywny i używany · 💤 nieaktywny / odłożony · 🗑️ przyk
 | 27 | Custom format/nakład: live AJAX preview (Etap C1) | front-end | ✅ | Custom format/nakład + podgląd ceny (AJAX prinex_custom_price); osadzanie v6.1 |
 | 28 | Dostawa i płatność + Zamówienie otrzymane | front-end | ✅ | Override checkoutu (5 szablonów: form-checkout/form-billing/review-order/payment/thankyou); stepper, Dane odbiorcy (Osoba/Firma+NIP), status plików jak koszyk, bramki w lewej kol., terms→#place_order, meta HPOS-safe; ekran order-received brandowany; is_checkout() |
 | 29 | Panel klienta /moje-konto/ | front-end | ✅ | Override myaccount/* (6 ekranow: login/pulpit/zamowienia/widok/adresy/dane konta); menu relabel+ukryj Pobrania; status chip; order-again; reuse status plikow + dane do przelewu. Warstwa 1 |
+| 30 | Książka adresowa (Warstwa 2c) | global | ✅ | Wiele adresów (user_meta _prinex_addresses); AJAX CRUD z nonce + autoryzacją per-ID + NIP checksum; UI Dane do wysyłki. Scope global (wp_ajax) |
 
 ---
 
